@@ -1,0 +1,33 @@
+name: BuildPushImage
+
+on:
+  workflow_dispatch:
+  push:
+    branches: ["main"]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+        name: Check out code
+
+      - uses: mr-smithers-excellent/docker-build-push@v6
+        name: Build & push Docker image
+        with:
+          image: trriplejay/rowbot
+          tags: ${GITHUB_SHA}
+          registry: docker.io
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+      - name: GCloud Auth
+        uses: google-github-actions/auth@v1
+        with:
+          credentials_json: "${{ secrets.GCP_ACCOUNT_JSON }}"
+
+      - name: setup-gcloud-sdk
+        uses: google-github-actions/setup-gcloud@v1
+
+      - name: Deploy API to Cloud Run
+        run: gcloud run deploy rowbot --image "trriplejay/rowbot:${GITHUB_SHA}" --region us-central1-b
