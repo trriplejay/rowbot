@@ -30,4 +30,4 @@ jobs:
         uses: google-github-actions/setup-gcloud@v1
 
       - name: Deploy API to Cloud Run
-        run: gcloud run deploy rowbot --image "trriplejay/rowbot:${GITHUB_SHA}" --region us-central1-b
+        run: gcloud run deploy rowbot --image "trriplejay/rowbot:${GITHUB_SHA}" --region us-central1
