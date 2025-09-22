@@ -1,5 +1,7 @@
 import { EmbedBuilder, WebhookClient } from 'discord.js';
 import { getMainPage, getSuccessPage, getErrorPage } from './templates';
+import { GetDBClient } from './db/client';
+import { GetLogbookClient} from './logbook/client';
 
 
 const config = {
@@ -16,6 +18,10 @@ const config = {
     externalUrl: process.env.APP_EXTERNAL_URL,
     port: parseInt(process.env.PORT || '3000'),
   },
+  db: {
+    url: process.env.TURSO_DATABASE_URL || "",
+    token: process.env.TURSO_AUTH_TOKEN || ""
+  }
 };
 config.concept2.redirectUri = `${config.server.externalUrl}/callback`
 
@@ -25,6 +31,10 @@ if (!config.concept2.apiBaseUrl) {
   throw new Error("missing required configuration: DISCORD_WEBHOOK_URL")
 } else if (!config.server.externalUrl) {
   throw new Error("missing required configuration: APP_EXTERNAL_URL")
+} else if (!config.db.url) {
+  throw new Error("missing required configuration: TURSO_DATABASE_URL")
+} else if (!config.db.token) {
+  throw new Error("missing required configuration: TURSO_AUTH_TOKEN")
 }
 
 interface TokenData {
@@ -150,9 +160,23 @@ const server = Bun.serve({
       try {
         const tokenData = await exchangeCodeForTokens(code);
 
+        // save user and token data to the turso db
+        const db = GetDBClient(config.db.url, config.db.token)
+        const lb = GetLogbookClient(config.concept2.apiBaseUrl, tokenData.access_token)
+
         const response = new Response(getSuccessPage(), {
           headers: { 'Content-Type': 'text/html' },
         });
+
+        const currentUser = await lb.getCurrentUser()
+        console.log(currentUser)
+        await db.createUser(
+          currentUser.id,
+          currentUser.username,
+          currentUser.profileImageUrl,
+          tokenData.access_token,
+          tokenData.refresh_token,
+        )
 
         // Set secure HTTP-only cookies
         const cookieOptions = 'HttpOnly; Secure; SameSite=Strict; Max-Age=3600; Path=/';
@@ -180,7 +204,11 @@ const server = Bun.serve({
     if (url.pathname === '/webhook' && req.method === 'POST') {
       try {
         const data = await req.json() as any;
-
+        const hookType = data.type as string;
+        // hook types can be result-added, result-updated, result-deleted
+        if (hookType !== 'result-added') {
+          return new Response('unsupported type', { status: 200} )
+        }
         // Extract basic data from Concept2 webhook
         const distance = data.result.distance || 0;
         const time = formatTime(data.result.time) || '00:00:00';
