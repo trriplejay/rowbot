@@ -19,7 +19,6 @@ export function GetDBClient(url: string, authToken: string){
 
       const stmt = conn.prepare('SELECT * FROM users WHERE id = ?');
       const result = await stmt.get([id])
-      console.log(result)
 
       return {
         id: result.id,

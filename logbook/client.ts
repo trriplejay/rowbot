@@ -28,7 +28,6 @@ export function GetLogbookClient(baseUrl: string, token: string) {
 
       const data: any = await response.json()
 
-      console.log(data)
       return {
         id: data.data.id,
         username: data.data.username,

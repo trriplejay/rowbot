@@ -169,7 +169,7 @@ const server = Bun.serve({
         });
 
         const currentUser = await lb.getCurrentUser()
-        console.log(currentUser)
+
         await db.createUser(
           currentUser.id,
           currentUser.username,
