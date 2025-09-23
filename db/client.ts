@@ -15,9 +15,9 @@ export function GetDBClient(url: string, authToken: string){
     authToken
   });
   return {
-    getUserByID: async function(id: number): Promise<User> {
+    getUserByLogbookId: async function(id: number): Promise<User> {
 
-      const stmt = conn.prepare('SELECT * FROM users WHERE id = ?');
+      const stmt = conn.prepare('SELECT * FROM users WHERE logbook_id = ?');
       const result = await stmt.get([id])
 
       return {

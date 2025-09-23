@@ -37,12 +37,6 @@ if (!config.concept2.apiBaseUrl) {
   throw new Error("missing required configuration: TURSO_AUTH_TOKEN")
 }
 
-interface TokenData {
-  access_token: string;
-  refresh_token: string;
-  expires_in: number;
-}
-
 function parseCookies(cookieHeader: string | null): Record<string, string> {
   if (!cookieHeader) return {};
 
@@ -54,28 +48,6 @@ function parseCookies(cookieHeader: string | null): Record<string, string> {
     }
   });
   return cookies;
-}
-
-async function exchangeCodeForTokens(code: string): Promise<TokenData> {
-  const response = await fetch(`${config.concept2.apiBaseUrl}/oauth/access_token`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/x-www-form-urlencoded',
-    },
-    body: new URLSearchParams({
-      grant_type: 'authorization_code',
-      code,
-      client_id: config.concept2.clientId,
-      client_secret: config.concept2.clientSecret,
-      redirect_uri: config.concept2.redirectUri,
-    }),
-  });
-
-  if (!response.ok) {
-    throw new Error(`Token exchange failed: ${response.statusText}`);
-  }
-
-  return await response.json() as TokenData;
 }
 
 function formatTime(tenthsOfSeconds: number): string {
@@ -98,6 +70,34 @@ function formatTime(tenthsOfSeconds: number): string {
     return `${minutes.toString().padStart(2,
   '0')}:${seconds.toString().padStart(2,
   '0')}.${tenths}`;
+}
+
+async function processWebhook(data: any) {
+   // Extract basic data from Concept2 webhook
+  const distance = data.result.distance || 0;
+  const time = formatTime(data.result.time) || '00:00:00';
+  const resultId = data.result.id
+  const logbookUserId = data.result.user_id
+  const dbClient = GetDBClient(config.db.url, config.db.token)
+  const dbUser = await dbClient.getUserByLogbookId(logbookUserId);
+
+
+  let lbClient = GetLogbookClient(config.concept2.apiBaseUrl, "")
+  const tokenData = await lbClient.getTokenFromRefreshCode(
+    dbUser.refreshToken,
+    config.concept2.clientId,
+    config.concept2.clientSecret
+  )
+  await dbClient.updateUser(dbUser.logbookId, tokenData.access_token, tokenData.refresh_token)
+  lbClient = GetLogbookClient(config.concept2.apiBaseUrl, tokenData.access_token);
+
+  const hookResult = await lbClient.getResultById(resultId);
+
+  console.log(`got the result data`);
+  console.log(hookResult);
+
+  // Send to Discord
+  await sendDiscordWebhook(distance, time);
 }
 
 async function sendDiscordWebhook(distance: number, time: string) {
@@ -158,16 +158,17 @@ const server = Bun.serve({
       }
 
       try {
-        const tokenData = await exchangeCodeForTokens(code);
+        let lb = GetLogbookClient(config.concept2.apiBaseUrl, "");
+        const tokenData = await lb.getTokenFromAuthCode(code, config.concept2.clientId, config.concept2.clientSecret, config.concept2.redirectUri)
 
         // save user and token data to the turso db
         const db = GetDBClient(config.db.url, config.db.token)
-        const lb = GetLogbookClient(config.concept2.apiBaseUrl, tokenData.access_token)
 
         const response = new Response(getSuccessPage(), {
           headers: { 'Content-Type': 'text/html' },
         });
 
+        lb = GetLogbookClient(config.concept2.apiBaseUrl, tokenData.access_token);
         const currentUser = await lb.getCurrentUser()
 
         await db.createUser(
@@ -209,14 +210,11 @@ const server = Bun.serve({
         if (hookType !== 'result-added') {
           return new Response('unsupported type', { status: 200} )
         }
-        // Extract basic data from Concept2 webhook
-        const distance = data.result.distance || 0;
-        const time = formatTime(data.result.time) || '00:00:00';
+        console.log('processing webhook:', data);
 
-        console.log('Received webhook:', data);
-
-        // Send to Discord
-        await sendDiscordWebhook(distance, time);
+        // do not await the result. this allows the webhook response to be 200
+        // to prevent the hooks from being retried
+        processWebhook(data);
 
         return new Response('OK');
       } catch (error) {
@@ -224,7 +222,6 @@ const server = Bun.serve({
         return new Response('Error processing webhook', { status: 500 });
       }
     }
-
     return new Response('Not Found', { status: 404 });
   },
 });

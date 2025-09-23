@@ -1,14 +1,12 @@
 #!/bin/bash -e
-
-HOOK_URL="https://discord.com/api/webhooks/1417757852705095720/oESlCb93l9-UIjAd30sz9txCbtguap-oFj2v2B7nbTx1d_xBLlseqZ7dDK-_eW6JuFdu"
-
+source $(pwd)/.env
 # Using curl
-curl -X POST "$HOOK_URL" \
+curl -X POST "$DISCORD_WEBHOOK_URL" \
   -H "Content-Type: application/json" \
   -d '{
   "embeds": [{
-   "title":"🎉 Congrats <username>!",
-   "description":"You completed a rowing activity! [logbook](https://www.google.com)",
+   "title":":person_rowing_boat: Congrats trriplejay!",
+   "description":"You completed a rowing activity!",
    "color":65280,
    "thumbnail":{
       "url":"https://example.com/server-icon.png"
@@ -31,39 +29,49 @@ curl -X POST "$HOOK_URL" \
          "inline": true
       },
       {
-        "name": "Split",
+        "name": "Splits",
         "value": "",
         "inline": true
       },
       {
-        "name": "Dist",
+        "name": "s/m",
         "value": "",
         "inline": true
       },
       {
-        "name": "Heart rate",
+        "name": "Avg/500",
         "value": "",
         "inline": true
       },
       {
         "name": "",
-        "value": ":one: -> 2:17.3",
+        "value": "1000",
         "inline": true
       },
       {
         "name": "",
-        "value": "2200",
+        "value": "21",
         "inline": true
       },
       {
         "name": "",
-        "value": "120bpm",
+        "value": "2:18.1",
         "inline": true
       },
-
       {
         "name": "",
-        "value":":two: -> 2:15.5\n:three: -> 2:16.2"
+        "value": "2000",
+        "inline": true
+      },
+      {
+        "name": "",
+        "value": "19",
+        "inline": true
+      },
+      {
+        "name": "",
+        "value": "2:16.9",
+        "inline": true
       }
 
    ],

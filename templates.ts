@@ -18,14 +18,16 @@ function renderTemplate(templateName: string, variables: TemplateVariables = {})
 }
 
 export function getMainPage(isLoggedIn: boolean, config: any): string {
-  const buttonText = isLoggedIn ? 'Logout' : 'Login with Concept2';
+  const buttonText = isLoggedIn ? 'Logout' : 'Login via Concept2 Logbook';
   const buttonAction = isLoggedIn ? 'logout()' : 'login()';
   const buttonClass = isLoggedIn ? 'logout-button' : '';
+  const descriptionStyle = isLoggedIn ? 'display: none;' : '';
 
   return renderTemplate('main', {
     buttonText,
     buttonAction,
     buttonClass,
+    descriptionStyle,
     clientId: config.concept2.clientId,
     redirectUri: config.concept2.redirectUri,
     apiBaseUrl: config.concept2.apiBaseUrl,
