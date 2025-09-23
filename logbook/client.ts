@@ -30,10 +30,9 @@ type LogbookInterval = {
 type LogbookWorkout = {
   intervals: LogbookInterval[] | null,
   splits: LogbookSplit[] | null,
-
 }
 
-type LogbookResult = {
+export type LogbookResult = {
   id: number,
   distance: number,
   time: number,

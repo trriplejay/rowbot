@@ -60,20 +60,8 @@ curl -X POST "$DISCORD_WEBHOOK_URL" \
       },
       {
         "name": "",
-        "value": "2000",
-        "inline": true
-      },
-      {
-        "name": "",
-        "value": "19",
-        "inline": true
-      },
-      {
-        "name": "",
-        "value": "2:16.9",
-        "inline": true
+        "value": ":two:     2000     19.1    2:16.9\n:three:     3000     18.6    2:16.5"
       }
-
    ],
    "footer":{
       "text":"nice work!",
