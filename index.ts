@@ -74,9 +74,6 @@ async function processWebhook(data: any) {
 
   const hookResult = await lbClient.getResultById(resultId);
 
-  console.log(`got the result data`);
-  console.log(hookResult);
-
   // Send to Discord
   await sendDiscordWebhook(dbUser.logbookUsername, hookResult);
   console.log(`---- finished webhook processing at: ${Date.now()}`)
@@ -94,7 +91,7 @@ async function sendDiscordWebhook(username: string, data: LogbookResult): Promis
     const attachment = new AttachmentBuilder(imageBuffer, { name: 'row-results.png' });
 
     await webhook.send({
-        content: 'Rowing activity received!',
+        content: `:person_rowing_boat: **${username}** completed a rowing activity! :person_rowing_boat:`,
         files: [attachment]
     })
     console.log('Discord webhook sent successfully');
@@ -187,12 +184,19 @@ const server = Bun.serve({
         // hook types can be result-added, result-updated, result-deleted
         if (hookType !== 'result-added') {
           return new Response('unsupported type', { status: 200} )
+        } else if (!data.result) {
+          console.log("got a bad hook");
+          console.log(data);
+          return new Response('cannot parse result from hook data', { status: 200} )
         }
-        console.log('processing webhook:', data);
+        console.log(`processing webhook with user_id:${data.result.user_id} result_id:${data.result.id}`);
 
-        // do not await the result. this allows the webhook response to be 200
-        // to prevent the hooks from being retried
-        processWebhook(data);
+        try {
+          await processWebhook(data);
+        } catch(err) {
+          console.log('error processing webhook');
+          console.log(err);
+        }
         console.log(`---- request complete at: ${Date.now()}`)
         return new Response('OK');
       } catch (error) {

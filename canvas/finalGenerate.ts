@@ -86,7 +86,7 @@ export function generateWorkoutDisplay(username: string, logbookResult: LogbookR
   }
 
   // Calculate dynamic height based on number of rows
-  const baseHeight = 300; // Base height for headers, borders, footer
+  const baseHeight = 270; // Base height for headers, borders, footer (reduced by 30)
   const rowHeight = 28;
   const totalHeight = baseHeight + (workoutRows.length * rowHeight);
 
@@ -126,39 +126,31 @@ export function generateWorkoutDisplay(username: string, logbookResult: LogbookR
   ctx.strokeRect(40, 40, 470, totalHeight - 80);
   ctx.shadowBlur = 0;
 
-  // Terminal header
+  // Terminal header with date
   ctx.fillStyle = colors.accent;
   ctx.shadowColor = colors.accent;
   ctx.shadowBlur = 8;
-  ctx.font = 'bold 24px monospace';
-  ctx.fillText(`>>> ${username.toUpperCase()} RESULTS <<<`, 60, 80);
-  ctx.shadowBlur = 0;
-
-  // Date section
-  ctx.fillStyle = colors.primary;
-  ctx.shadowColor = colors.primary;
-  ctx.shadowBlur = 6;
-  ctx.font = '20px monospace';
+  ctx.font = 'bold 20px monospace';
   const dateStr = logbookResult.date ? new Date(logbookResult.date).toISOString().split('T')[0] : new Date().toISOString().split('T')[0];
-  ctx.fillText(`DATE: ${dateStr}`, 60, 110);
+  ctx.fillText(`>>> ${dateStr} <<<`, 60, 80);
   ctx.shadowBlur = 0;
 
   // Add some retro UI elements
   ctx.fillStyle = colors.secondary;
-  ctx.fillRect(60, 120, 200, 2);
-  ctx.fillRect(60, 125, 150, 2);
-  ctx.fillRect(60, 130, 100, 2);
+  ctx.fillRect(60, 90, 200, 2);
+  ctx.fillRect(60, 95, 150, 2);
+  ctx.fillRect(60, 100, 100, 2);
 
   // Table headers section
   ctx.fillStyle = colors.base200;
-  ctx.fillRect(60, 150, 430, 40);
+  ctx.fillRect(60, 120, 430, 40);
 
   // Border for header
   ctx.strokeStyle = colors.accent;
   ctx.lineWidth = 2;
   ctx.shadowColor = colors.accent;
   ctx.shadowBlur = 8;
-  ctx.strokeRect(60, 150, 430, 40);
+  ctx.strokeRect(60, 120, 430, 40);
   ctx.shadowBlur = 0;
 
   // Table headers with font
@@ -169,10 +161,10 @@ export function generateWorkoutDisplay(username: string, logbookResult: LogbookR
 
   // Right-align all headers to match the data columns
   ctx.textAlign = 'right';
-  ctx.fillText('TIME', 160, 175);
-  ctx.fillText('METERS', 260, 175);
-  ctx.fillText('PACE/500M', 400, 175);
-  ctx.fillText('S/MIN', 480, 175);
+  ctx.fillText('TIME', 160, 145);
+  ctx.fillText('METERS', 260, 145);
+  ctx.fillText('PACE/500M', 400, 145);
+  ctx.fillText('S/MIN', 480, 145);
   ctx.shadowBlur = 0;
 
   // Use the prepared workout data
@@ -180,17 +172,17 @@ export function generateWorkoutDisplay(username: string, logbookResult: LogbookR
 
   // First row highlighting
   ctx.fillStyle = colors.base200;
-  ctx.fillRect(60, 200, 430, 30);
+  ctx.fillRect(60, 170, 430, 30);
   ctx.strokeStyle = colors.secondary;
   ctx.lineWidth = 2;
   ctx.shadowColor = colors.secondary;
   ctx.shadowBlur = 6;
-  ctx.strokeRect(60, 200, 430, 30);
+  ctx.strokeRect(60, 170, 430, 30);
   ctx.shadowBlur = 0;
 
   // Draw all table rows with DaisyUI styling
   ctx.font = '14px monospace';
-  let yPos: number = 220;
+  let yPos: number = 190;
 
   rowData.forEach((row: WorkoutRow, index: number) => {
     // Alternate row colors
@@ -240,16 +232,6 @@ export function generateWorkoutDisplay(username: string, logbookResult: LogbookR
   ctx.fillRect(470, decorationY, 4, 15);
   ctx.fillRect(460, decorationY + 5, 4, 10);
   ctx.fillRect(450, decorationY + 10, 4, 8);
-
-  // Add terminal-style footer
-  const footerY = totalHeight - 40;
-  ctx.fillStyle = colors.accent;
-  ctx.shadowColor = colors.accent;
-  ctx.shadowBlur = 6;
-  ctx.font = '12px monospace';
-  ctx.fillText('SYSTEM_STATUS: ACTIVE | DATA_STREAM: LIVE', 60, footerY);
-  ctx.shadowBlur = 0;
-
 
   // Return the image buffer
   const buffer: Buffer = canvas.toBuffer('image/png');
