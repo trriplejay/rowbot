@@ -1,7 +1,7 @@
 #!/bin/bash -e
 
 # Build the Docker image
-docker build -t row-bot .
+docker buildx build --platform linux/amd64 -t row-bot .
 
 # load the env file
 . "$(pwd)/.env"
@@ -15,5 +15,7 @@ docker run -d \
   -e CONCEPT2_REDIRECT_URI="${APP_EXTERNAL_URL}/callback" \
   -e DISCORD_WEBHOOK_URL="${DISCORD_WEBHOOK_URL}" \
   -e APP_EXTERNAL_URL="${APP_EXTERNAL_URL}" \
+  -e TURSO_DATABASE_URL="${TURSO_DATABASE_URL}" \
+  -e TURSO_AUTH_TOKEN="${TURSO_AUTH_TOKEN}" \
   -e PORT="${PORT}" \
   row-bot
