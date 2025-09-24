@@ -6,6 +6,10 @@ This app uses Turso (sqlite) for stateful data.
 
 I also chose to use [Bun](https://bun.com) for this project just to try it out!
 
+here's an example output that would be added as an attachment to a discord message:
+
+![example output](https://github.com/trriplejay/rowbot/blob/main/canvas/example/test-workout-with-intervals.png)
+
 ## Setup
 
 1. **Clone and install dependencies:**
