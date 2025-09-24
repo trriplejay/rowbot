@@ -42,6 +42,36 @@ export type LogbookResult = {
 
 };
 
+export function formatTime(tenthsOfSeconds: number): string {
+    const totalSeconds =
+  Math.floor(tenthsOfSeconds / 10);
+    const tenths = tenthsOfSeconds % 10;
+
+    const hours = Math.floor(totalSeconds
+   / 3600);
+    const minutes =
+  Math.floor((totalSeconds % 3600) / 60);
+    const seconds = totalSeconds % 60;
+
+  if (hours > 0)
+    return `${hours.toString().padStart(2,
+  '0')}:${minutes.toString().padStart(2,
+  '0')}:${seconds.toString().padStart(2,
+  '0')}.${tenths}`;
+  else
+    return `${minutes.toString().padStart(2,
+  '0')}:${seconds.toString().padStart(2,
+  '0')}.${tenths}`;
+}
+
+export function calculatePace(distance: number, time: number): number {
+  // we're looking for time per 500m
+  // time / distance gives x tenths per meter
+  // times 500 gives x tenths per 500 meters
+  return Math.round((time / distance) * 500)
+
+}
+
 export function GetLogbookClient(baseUrl: string, token: string) {
   const headers = {
     "Content-Type": "application/json",

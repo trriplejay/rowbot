@@ -1,7 +1,8 @@
-import { EmbedBuilder, WebhookClient, type APIEmbedField } from 'discord.js';
+import { AttachmentBuilder, EmbedBuilder, WebhookClient, type APIEmbedField } from 'discord.js';
 import { getMainPage, getSuccessPage, getErrorPage } from './templates';
 import { GetDBClient } from './db/client';
-import { GetLogbookClient, type LogbookResult} from './logbook/client';
+import { formatTime, GetLogbookClient, type LogbookResult} from './logbook/client';
+import { generateWorkoutDisplay } from './canvas/finalGenerate';
 
 
 const config = {
@@ -50,35 +51,7 @@ function parseCookies(cookieHeader: string | null): Record<string, string> {
   return cookies;
 }
 
-function formatTime(tenthsOfSeconds: number): string {
-    const totalSeconds =
-  Math.floor(tenthsOfSeconds / 10);
-    const tenths = tenthsOfSeconds % 10;
 
-    const hours = Math.floor(totalSeconds
-   / 3600);
-    const minutes =
-  Math.floor((totalSeconds % 3600) / 60);
-    const seconds = totalSeconds % 60;
-
-  if (hours > 0)
-    return `${hours.toString().padStart(2,
-  '0')}:${minutes.toString().padStart(2,
-  '0')}:${seconds.toString().padStart(2,
-  '0')}.${tenths}`;
-  else
-    return `${minutes.toString().padStart(2,
-  '0')}:${seconds.toString().padStart(2,
-  '0')}.${tenths}`;
-}
-
-function calculatePace(distance: number, time: number): number {
-  // we're looking for time per 500m
-  // time / distance gives x tenths per meter
-  // times 500 gives x tenths per 500 meters
-  return (time / distance) * 500
-
-}
 
 async function processWebhook(data: any) {
    // Extract basic data from Concept2 webhook
@@ -106,6 +79,7 @@ async function processWebhook(data: any) {
 
   // Send to Discord
   await sendDiscordWebhook(dbUser.logbookUsername, hookResult);
+  console.log(`---- finished webhook processing at: ${Date.now()}`)
 }
 
 async function sendDiscordWebhook(username: string, data: LogbookResult): Promise<void> {
@@ -116,48 +90,13 @@ async function sendDiscordWebhook(username: string, data: LogbookResult): Promis
 
   try {
     const webhook = new WebhookClient({ url: config.discord.webhookUrl });
+    const imageBuffer = generateWorkoutDisplay(username, data);
+    const attachment = new AttachmentBuilder(imageBuffer, { name: 'row-results.png' });
 
-    const embedFields: APIEmbedField[] = [];
-    embedFields.push({ name: 'Distance', value: `${data.distance}m`, inline: true });
-    embedFields.push({ name: 'Time', value: formatTime(data.time), inline: true });
-    embedFields.push({ name: 'Pace', value: data.strokeRate.toString(), inline: true });
-
-    const embed = new EmbedBuilder()
-      .setTitle(`:person_rowing_boat: Congrats ${username}!`)
-      .setDescription("You completed a rowing activity.")
-      .setColor('#007bff')
-      .setTimestamp()
-      .setFooter({ text: 'Concept2 Logbook' });
-
-    if (data.workout.splits && data.workout.splits.length > 0) {
-      embedFields.push({ name: "Splits", value: "", inline: true });
-      embedFields.push({ name: "s/m", value: "", inline: true })
-      embedFields.push( { name: "Pace", value: "", inline: true })
-      for (const split of data.workout.splits) {
-        const pace = formatTime(calculatePace(split.distance, split.time));
-        embedFields.push({name: "", value: `${split.distance}`, inline: true})
-        embedFields.push({name: "", value: `${split.strokeRate}`, inline: true})
-        embedFields.push({name: "", value: `${pace}`, inline: true})
-      }
-    } else if (data.workout.intervals && data.workout.intervals.length > 0) {
-
-      embedFields.push({ name: "Intervals", value: "", inline: true });
-      embedFields.push({ name: "s/m", value: "", inline: true });
-      embedFields.push({ name: "Pace", value: "", inline: true });
-      for (const interval of data.workout.intervals) {
-        const pace = formatTime(calculatePace(interval.distance, interval.time));
-        embedFields.push({name: "", value: `${interval.distance}`, inline: true})
-        embedFields.push({name: "", value: `${interval.strokeRate}`, inline: true})
-        embedFields.push({name: "", value: `${pace}`, inline: true})
-      }
-    }
-    while(embedFields.length > 25) {
-      embedFields.pop()
-    }
-    if (embedFields.length > 0) {
-      embed.addFields(embedFields);
-    }
-    await webhook.send({ embeds: [embed] });
+    await webhook.send({
+        content: 'Rowing activity received!',
+        files: [attachment]
+    })
     console.log('Discord webhook sent successfully');
   } catch (error) {
     console.error('Error sending Discord webhook:', error);
@@ -167,6 +106,7 @@ async function sendDiscordWebhook(username: string, data: LogbookResult): Promis
 const server = Bun.serve({
   port: config.server.port,
   async fetch(req) {
+    console.log(`---- request received at: ${Date.now()}`)
     const url = new URL(req.url);
     const cookies = parseCookies(req.headers.get('cookie'));
     const isLoggedIn = !!(cookies.access_token);
@@ -253,7 +193,7 @@ const server = Bun.serve({
         // do not await the result. this allows the webhook response to be 200
         // to prevent the hooks from being retried
         processWebhook(data);
-
+        console.log(`---- request complete at: ${Date.now()}`)
         return new Response('OK');
       } catch (error) {
         console.error('Webhook processing error:', error);
