@@ -3,6 +3,7 @@ import { getMainPage, getSuccessPage, getErrorPage } from './templates';
 import { GetDBClient } from './db/client';
 import { formatTime, GetLogbookClient, type LogbookResult} from './logbook/client';
 import { generateWorkoutDisplay } from './canvas/finalGenerate';
+import { GetDiscordClient } from './discord/client';
 
 
 const config = {
@@ -86,14 +87,8 @@ async function sendDiscordWebhook(username: string, data: LogbookResult): Promis
   }
 
   try {
-    const webhook = new WebhookClient({ url: config.discord.webhookUrl });
-    const imageBuffer = generateWorkoutDisplay(username, data);
-    const attachment = new AttachmentBuilder(imageBuffer, { name: 'row-results.png' });
-
-    await webhook.send({
-        content: `:person_rowing_boat: **${username}** completed a rowing activity! :person_rowing_boat:`,
-        files: [attachment]
-    })
+    const dclient = GetDiscordClient(config.discord.webhookUrl);
+    await dclient.sendWebhook(username, data);
     console.log('Discord webhook sent successfully');
   } catch (error) {
     console.error('Error sending Discord webhook:', error);
