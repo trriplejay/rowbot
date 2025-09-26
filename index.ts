@@ -2,7 +2,7 @@ import { AttachmentBuilder, EmbedBuilder, WebhookClient, type APIEmbedField } fr
 import { getMainPage, getSuccessPage, getErrorPage } from './templates';
 import { GetDBClient } from './db/client';
 import { formatTime, GetLogbookClient, type LogbookResult} from './logbook/client';
-import { generateWorkoutDisplay } from './canvas/finalGenerate';
+import { generateWorkoutDisplay } from './canvas/generate';
 
 
 const config = {

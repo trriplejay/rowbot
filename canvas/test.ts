@@ -1,5 +1,5 @@
 import { writeFileSync } from 'fs';
-import { generateWorkoutDisplay } from './finalGenerate';
+import { generateWorkoutDisplay } from './generate';
 import { type LogbookResult } from '../logbook/client';
 
 // Test data 1: Workout with splits
