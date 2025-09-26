@@ -1,5 +1,5 @@
 # Use the official Bun image
-FROM oven/bun:1
+FROM oven/bun:1.2-slim
 
 # Install system dependencies for node-canvas
 RUN apt-get update && apt-get install -y \
@@ -17,7 +17,7 @@ WORKDIR /app
 COPY . .
 
 # Install dependencies
-RUN bun install --frozen-lockfile
+RUN bun install --frozen-lockfile --production
 
 # Expose the port
 EXPOSE 3000
