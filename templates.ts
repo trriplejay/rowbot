@@ -1,13 +1,20 @@
-import { readFileSync } from 'fs';
-import { join } from 'path';
+import { readFileSync } from "fs";
+import { join } from "path";
 
 interface TemplateVariables {
   [key: string]: string;
 }
 
-function renderTemplate(templateName: string, variables: TemplateVariables = {}): string {
-  const templatePath = join(import.meta.dir, 'templates', `${templateName}.html`);
-  let template = readFileSync(templatePath, 'utf-8');
+function renderTemplate(
+  templateName: string,
+  variables: TemplateVariables = {},
+): string {
+  const templatePath = join(
+    import.meta.dir,
+    "templates",
+    `${templateName}.html`,
+  );
+  let template = readFileSync(templatePath, "utf-8");
 
   for (const [key, value] of Object.entries(variables)) {
     const placeholder = `{{${key}}}`;
@@ -18,12 +25,12 @@ function renderTemplate(templateName: string, variables: TemplateVariables = {})
 }
 
 export function getMainPage(isLoggedIn: boolean, config: any): string {
-  const buttonText = isLoggedIn ? 'Logout' : 'Login via Concept2 Logbook';
-  const buttonAction = isLoggedIn ? 'logout()' : 'login()';
-  const buttonClass = isLoggedIn ? 'logout-button' : '';
-  const descriptionStyle = isLoggedIn ? 'display: none;' : '';
+  const buttonText = isLoggedIn ? "Logout" : "Login via Concept2 Logbook";
+  const buttonAction = isLoggedIn ? "logout()" : "login()";
+  const buttonClass = isLoggedIn ? "logout-button" : "";
+  const descriptionStyle = isLoggedIn ? "display: none;" : "";
 
-  return renderTemplate('main', {
+  return renderTemplate("main", {
     buttonText,
     buttonAction,
     buttonClass,
@@ -35,11 +42,11 @@ export function getMainPage(isLoggedIn: boolean, config: any): string {
 }
 
 export function getSuccessPage(): string {
-  return renderTemplate('success');
+  return renderTemplate("success");
 }
 
 export function getErrorPage(errorMessage: string): string {
-  return renderTemplate('error', {
+  return renderTemplate("error", {
     errorMessage,
   });
 }

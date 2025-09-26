@@ -21,7 +21,6 @@ here's an example output that would be added as an attachment to a discord messa
    ```
 
    note: this app relies on several external dependencies including:
-
    - Turso
    - Concept2 logbook
    - Discord webhook
@@ -33,7 +32,6 @@ here's an example output that would be added as an attachment to a discord messa
    ```
 
    Edit `.env` with your actual values:
-
    - `CONCEPT2_CLIENT_ID`: Your Concept2 OAuth client ID
    - `CONCEPT2_CLIENT_SECRET`: Your Concept2 OAuth client secret
    - `CONCEPT2_REDIRECT_URI`: OAuth callback URL (default: http://localhost:3000/callback)
@@ -43,7 +41,6 @@ here's an example output that would be added as an attachment to a discord messa
    - `TURSO_AUTH_TOKEN`: authentication token for your turso db
 
 3. **Get Concept2 OAuth credentials:**
-
    - Visit [Concept2 Developer Documentation](https://log.concept2.com/developers/documentation)
    - Register your application to get client ID and secret
    - Set the redirect URI to match your `APP_EXTERNAL_URL`/callback. If you want to run this locally, you can use [ngrok](https://ngrok.com/) to set up a publicly accessible URL that can reach your localhost.

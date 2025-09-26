@@ -1,5 +1,3 @@
-
-
 export interface TokenData {
   access_token: string;
   refresh_token: string;
@@ -7,98 +5,94 @@ export interface TokenData {
 }
 
 type LogbookUser = {
-  id: number,
-  username: string,
-  profileImageUrl: string,
+  id: number;
+  username: string;
+  profileImageUrl: string;
 };
 
 type LogbookSplit = {
-  time: number,
-  distance: number,
-  strokeRate: number,
-  avgHeartRate: number,
-}
+  time: number;
+  distance: number;
+  strokeRate: number;
+  avgHeartRate: number;
+};
 
 type LogbookInterval = {
-  type: "distance" | "time",
-  distance: number,
-  time: number,
-  strokeRate: number,
-  avgHeartRate: number,
-}
+  type: "distance" | "time";
+  distance: number;
+  time: number;
+  strokeRate: number;
+  avgHeartRate: number;
+};
 
 type LogbookWorkout = {
-  intervals: LogbookInterval[] | null,
-  splits: LogbookSplit[] | null,
-}
+  intervals: LogbookInterval[] | null;
+  splits: LogbookSplit[] | null;
+};
 
 export type LogbookResult = {
-  id: number,
-  distance: number,
-  time: number,
-  date: Date,
-  strokeRate: number,
-  workout: LogbookWorkout,
-
+  id: number;
+  distance: number;
+  time: number;
+  date: Date;
+  strokeRate: number;
+  workout: LogbookWorkout;
 };
 
 export function formatTime(tenthsOfSeconds: number): string {
-    const totalSeconds =
-  Math.floor(tenthsOfSeconds / 10);
-    const tenths = tenthsOfSeconds % 10;
+  const totalSeconds = Math.floor(tenthsOfSeconds / 10);
+  const tenths = tenthsOfSeconds % 10;
 
-    const hours = Math.floor(totalSeconds
-   / 3600);
-    const minutes =
-  Math.floor((totalSeconds % 3600) / 60);
-    const seconds = totalSeconds % 60;
+  const hours = Math.floor(totalSeconds / 3600);
+  const minutes = Math.floor((totalSeconds % 3600) / 60);
+  const seconds = totalSeconds % 60;
 
   if (hours > 0)
-    return `${hours.toString().padStart(2,
-  '0')}:${minutes.toString().padStart(2,
-  '0')}:${seconds.toString().padStart(2,
-  '0')}.${tenths}`;
+    return `${hours.toString().padStart(2, "0")}:${minutes
+      .toString()
+      .padStart(2, "0")}:${seconds.toString().padStart(2, "0")}.${tenths}`;
   else
-    return `${minutes.toString().padStart(2,
-  '0')}:${seconds.toString().padStart(2,
-  '0')}.${tenths}`;
+    return `${minutes.toString().padStart(2, "0")}:${seconds
+      .toString()
+      .padStart(2, "0")}.${tenths}`;
 }
 
 export function calculatePace(distance: number, time: number): number {
   // we're looking for time per 500m
   // time / distance gives x tenths per meter
   // times 500 gives x tenths per 500 meters
-  return Math.round((time / distance) * 500)
-
+  return Math.round((time / distance) * 500);
 }
 
 export function GetLogbookClient(baseUrl: string, token: string) {
   const headers = {
     "Content-Type": "application/json",
-    "Authorization": ""
-  }
+    Authorization: "",
+  };
   if (token) {
-    headers.Authorization = `Bearer ${token}`
+    headers.Authorization = `Bearer ${token}`;
   }
 
   return {
-    getCurrentUser: async function(): Promise<LogbookUser> {
-      const response = await fetch(`${baseUrl}/api/users/me`, {headers});
-      if (!response.ok) throw new Error('Failed to fetch user');
+    getCurrentUser: async function (): Promise<LogbookUser> {
+      const response = await fetch(`${baseUrl}/api/users/me`, { headers });
+      if (!response.ok) throw new Error("Failed to fetch user");
 
-      const data: any = await response.json()
+      const data: any = await response.json();
 
       return {
         id: data.data.id,
         username: data.data.username,
-        profileImageUrl: data.data.profile_image
-      } as LogbookUser
+        profileImageUrl: data.data.profile_image,
+      } as LogbookUser;
     },
-    getResultById: async function(id: number): Promise<LogbookResult> {
-      const response = await fetch(`${baseUrl}/api/users/me/results/${id}`, {headers});
+    getResultById: async function (id: number): Promise<LogbookResult> {
+      const response = await fetch(`${baseUrl}/api/users/me/results/${id}`, {
+        headers,
+      });
       if (!response.ok) throw new Error(`Failed to fetch result with id ${id}`);
 
-      const data: any = await response.json()
+      const data: any = await response.json();
       const rawWorkout = data.data.workout;
       const formattedSplits: LogbookSplit[] = [];
       const formattedIntervals: LogbookInterval[] = [];
@@ -111,12 +105,12 @@ export function GetLogbookClient(baseUrl: string, token: string) {
             distance: w.distance,
             strokeRate: w.stroke_rate,
             avgHeartRate: w?.heart_rate?.average,
-          } as LogbookSplit)
-        };
+          } as LogbookSplit);
+        }
       }
       if (rawWorkout?.intervals) {
         for (const i of rawWorkout.intervals) {
-          if (!i) continue
+          if (!i) continue;
           formattedIntervals.push({
             type: i.type,
             time: i.time,
@@ -135,15 +129,20 @@ export function GetLogbookClient(baseUrl: string, token: string) {
         workout: {
           intervals: formattedIntervals,
           splits: formattedSplits,
-        }
+        },
       };
       return logbookResult;
     },
-    getTokenFromAuthCode: async function(code: string, clientId: string, clientSecret: string, redirectUri: string): Promise<TokenData> {
+    getTokenFromAuthCode: async function (
+      code: string,
+      clientId: string,
+      clientSecret: string,
+      redirectUri: string,
+    ): Promise<TokenData> {
       const response = await fetch(`${baseUrl}/oauth/access_token`, {
-        method: 'POST',
+        method: "POST",
         headers: {
-          'Content-Type': 'application/x-www-form-urlencoded',
+          "Content-Type": "application/x-www-form-urlencoded",
         },
         body: new URLSearchParams({
           grant_type: "authorization_code",
@@ -157,27 +156,31 @@ export function GetLogbookClient(baseUrl: string, token: string) {
       if (!response.ok) {
         throw new Error(`Token exchange failed: ${response.statusText}`);
       }
-      return await response.json() as TokenData;
+      return (await response.json()) as TokenData;
     },
-    getTokenFromRefreshCode: async function(refreshToken: string, clientId: string, clientSecret: string): Promise<TokenData> {
+    getTokenFromRefreshCode: async function (
+      refreshToken: string,
+      clientId: string,
+      clientSecret: string,
+    ): Promise<TokenData> {
       const response = await fetch(`${baseUrl}/oauth/access_token`, {
-        method: 'POST',
+        method: "POST",
         headers: {
-          'Content-Type': 'application/x-www-form-urlencoded',
+          "Content-Type": "application/x-www-form-urlencoded",
         },
         body: new URLSearchParams({
           grant_type: "refresh_token",
           refresh_token: refreshToken,
           client_id: clientId,
           client_secret: clientSecret,
-          scope: 'user:read,results:read',
+          scope: "user:read,results:read",
         }),
       });
 
       if (!response.ok) {
         throw new Error(`Token exchange failed: ${response.statusText}`);
       }
-      return await response.json() as TokenData;
-    }
-  }
+      return (await response.json()) as TokenData;
+    },
+  };
 }

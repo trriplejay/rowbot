@@ -1,5 +1,9 @@
-import { createCanvas, Canvas, CanvasRenderingContext2D } from 'canvas';
-import { calculatePace, formatTime, type LogbookResult } from '../logbook/client';
+import { createCanvas, Canvas, CanvasRenderingContext2D } from "canvas";
+import {
+  calculatePace,
+  formatTime,
+  type LogbookResult,
+} from "../logbook/client";
 
 // Define types for better type safety
 interface WorkoutRow {
@@ -10,16 +14,15 @@ interface WorkoutRow {
 }
 
 interface DaisyForestColors {
-  base100: string;     // Main background
-  base200: string;     // Secondary background
-  base300: string;     // Tertiary background
+  base100: string; // Main background
+  base200: string; // Secondary background
+  base300: string; // Tertiary background
   baseContent: string; // Light text
-  primary: string;     // Primary green
-  secondary: string;   // Secondary teal
-  accent: string;      // Accent cyan
-  neutral: string;     // Neutral gray
+  primary: string; // Primary green
+  secondary: string; // Secondary teal
+  accent: string; // Accent cyan
+  neutral: string; // Neutral gray
 }
-
 
 // // Helper function to format pace (time per 500m)
 // function formatPace(timeInSeconds: number, distanceInMeters: number): string {
@@ -36,21 +39,23 @@ function formatDistance(meters: number): string {
 
 // Helper function to format stroke rate
 function formatStrokeRate(rate: number): string {
-  return rate ? rate.toString() : '0';
+  return rate ? rate.toString() : "0";
 }
 
-export function generateWorkoutDisplay(username: string, logbookResult: LogbookResult): Buffer {
-
+export function generateWorkoutDisplay(
+  username: string,
+  logbookResult: LogbookResult,
+): Buffer {
   // DaisyUI Forest theme color palette
   const colors: DaisyForestColors = {
-    base100: '#1F2937',     // Main dark background
-    base200: '#111827',     // Darker background
-    base300: '#0F172A',     // Darkest background
-    baseContent: '#F9FAFB', // Light text
-    primary: '#22C55E',     // Primary green
-    secondary: '#14B8A6',   // Secondary teal
-    accent: '#06B6D4',      // Accent cyan
-    neutral: '#374151'      // Neutral gray
+    base100: "#1F2937", // Main dark background
+    base200: "#111827", // Darker background
+    base300: "#0F172A", // Darkest background
+    baseContent: "#F9FAFB", // Light text
+    primary: "#22C55E", // Primary green
+    secondary: "#14B8A6", // Secondary teal
+    accent: "#06B6D4", // Accent cyan
+    neutral: "#374151", // Neutral gray
   };
 
   // Prepare workout data
@@ -61,7 +66,7 @@ export function generateWorkoutDisplay(username: string, logbookResult: LogbookR
     time: formatTime(logbookResult.time),
     meter: formatDistance(logbookResult.distance),
     pace: formatTime(calculatePace(logbookResult.distance, logbookResult.time)),
-    strokeRate: formatStrokeRate(logbookResult.strokeRate)
+    strokeRate: formatStrokeRate(logbookResult.strokeRate),
   });
 
   // Add splits or intervals if available
@@ -71,16 +76,19 @@ export function generateWorkoutDisplay(username: string, logbookResult: LogbookR
         time: formatTime(split.time),
         meter: formatDistance(split.distance),
         pace: formatTime(calculatePace(split.distance, split.time)),
-        strokeRate: formatStrokeRate(split.strokeRate)
+        strokeRate: formatStrokeRate(split.strokeRate),
       });
     }
-  } else if (logbookResult.workout.intervals && logbookResult.workout.intervals.length > 0) {
+  } else if (
+    logbookResult.workout.intervals &&
+    logbookResult.workout.intervals.length > 0
+  ) {
     for (const interval of logbookResult.workout.intervals) {
       workoutRows.push({
         time: formatTime(interval.time),
         meter: formatDistance(interval.distance),
         pace: formatTime(calculatePace(interval.distance, interval.time)),
-        strokeRate: formatStrokeRate(interval.strokeRate)
+        strokeRate: formatStrokeRate(interval.strokeRate),
       });
     }
   }
@@ -88,11 +96,11 @@ export function generateWorkoutDisplay(username: string, logbookResult: LogbookR
   // Calculate dynamic height based on number of rows
   const baseHeight = 270; // Base height for headers, borders, footer (reduced by 30)
   const rowHeight = 28;
-  const totalHeight = baseHeight + (workoutRows.length * rowHeight);
+  const totalHeight = baseHeight + workoutRows.length * rowHeight;
 
   // Create canvas with dynamic height
   const canvas: Canvas = createCanvas(550, totalHeight);
-  const ctx: CanvasRenderingContext2D = canvas.getContext('2d');
+  const ctx: CanvasRenderingContext2D = canvas.getContext("2d");
 
   // Fill background with base color
   ctx.fillStyle = colors.base300;
@@ -130,8 +138,10 @@ export function generateWorkoutDisplay(username: string, logbookResult: LogbookR
   ctx.fillStyle = colors.accent;
   ctx.shadowColor = colors.accent;
   ctx.shadowBlur = 8;
-  ctx.font = 'bold 20px monospace';
-  const dateStr = logbookResult.date ? new Date(logbookResult.date).toISOString().split('T')[0] : new Date().toISOString().split('T')[0];
+  ctx.font = "bold 20px monospace";
+  const dateStr = logbookResult.date
+    ? new Date(logbookResult.date).toISOString().split("T")[0]
+    : new Date().toISOString().split("T")[0];
   ctx.fillText(`>>> ${dateStr} <<<`, 60, 80);
   ctx.shadowBlur = 0;
 
@@ -157,14 +167,14 @@ export function generateWorkoutDisplay(username: string, logbookResult: LogbookR
   ctx.fillStyle = colors.baseContent;
   ctx.shadowColor = colors.baseContent;
   ctx.shadowBlur = 5;
-  ctx.font = 'bold 16px monospace';
+  ctx.font = "bold 16px monospace";
 
   // Right-align all headers to match the data columns
-  ctx.textAlign = 'right';
-  ctx.fillText('TIME', 160, 145);
-  ctx.fillText('METERS', 260, 145);
-  ctx.fillText('PACE/500M', 400, 145);
-  ctx.fillText('S/MIN', 480, 145);
+  ctx.textAlign = "right";
+  ctx.fillText("TIME", 160, 145);
+  ctx.fillText("METERS", 260, 145);
+  ctx.fillText("PACE/500M", 400, 145);
+  ctx.fillText("S/MIN", 480, 145);
   ctx.shadowBlur = 0;
 
   // Use the prepared workout data
@@ -181,7 +191,7 @@ export function generateWorkoutDisplay(username: string, logbookResult: LogbookR
   ctx.shadowBlur = 0;
 
   // Draw all table rows with DaisyUI styling
-  ctx.font = '14px monospace';
+  ctx.font = "14px monospace";
   let yPos: number = 190;
 
   rowData.forEach((row: WorkoutRow, index: number) => {
@@ -201,7 +211,7 @@ export function generateWorkoutDisplay(username: string, logbookResult: LogbookR
     }
 
     // Right-align all columns for better alignment of numeric data
-    ctx.textAlign = 'right';
+    ctx.textAlign = "right";
     ctx.fillText(row.time, 160, yPos);
     ctx.fillText(row.meter, 260, yPos);
     ctx.fillText(row.pace, 400, yPos);
@@ -234,7 +244,7 @@ export function generateWorkoutDisplay(username: string, logbookResult: LogbookR
   ctx.fillRect(450, decorationY + 10, 4, 8);
 
   // Return the image buffer
-  const buffer: Buffer = canvas.toBuffer('image/png');
+  const buffer: Buffer = canvas.toBuffer("image/png");
   return buffer;
 }
 
