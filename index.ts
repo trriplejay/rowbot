@@ -5,7 +5,7 @@ import {
   type APIEmbedField,
 } from "discord.js";
 import { getMainPage, getSuccessPage, getErrorPage } from "./templates";
-import { GetDBClient } from "./db/client";
+import { GetDBClient, type User } from "./db/client";
 import {
   formatTime,
   GetLogbookClient,
@@ -88,12 +88,12 @@ async function processWebhook(data: any) {
   const hookResult = await lbClient.getResultById(resultId);
 
   // Send to Discord
-  await sendDiscordWebhook(dbUser.logbookUsername, hookResult);
+  await sendDiscordWebhook(dbUser, hookResult);
   console.log(`---- finished webhook processing at: ${Date.now()}`);
 }
 
 async function sendDiscordWebhook(
-  username: string,
+  dbUser: User,
   data: LogbookResult,
 ): Promise<void> {
   if (!config.discord.webhookUrl) {
@@ -103,13 +103,14 @@ async function sendDiscordWebhook(
 
   try {
     const webhook = new WebhookClient({ url: config.discord.webhookUrl });
-    const imageBuffer = generateWorkoutDisplay(username, data);
+    const imageBuffer = generateWorkoutDisplay(dbUser.logbookUsername, data);
     const attachment = new AttachmentBuilder(imageBuffer, {
       name: "row-results.png",
     });
 
     await webhook.send({
-      content: `:person_rowing_boat: **${username}** completed a rowing activity! :person_rowing_boat:`,
+      avatarURL: dbUser.profileImageUrl,
+      content: `:person_rowing_boat: **${dbUser.logbookUsername}** completed a rowing activity! :person_rowing_boat:`,
       files: [attachment],
     });
     console.log("Discord webhook sent successfully");

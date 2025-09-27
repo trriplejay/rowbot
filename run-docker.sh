@@ -6,8 +6,7 @@ docker buildx build --platform linux/amd64 -t row-bot .
 # load the env file
 . "$(pwd)/.env"
 # Run the Docker container with environment variables
-docker run -d \
-  --name row-bot-container \
+docker run -d --name rowbot \
   -p 3000:3000 \
   -e CONCEPT2_API_BASE_URL="${CONCEPT2_API_BASE_URL}" \
   -e CONCEPT2_CLIENT_ID="${CONCEPT2_CLIENT_ID}" \

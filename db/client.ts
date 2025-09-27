@@ -1,6 +1,6 @@
 import { connect, Connection } from "@tursodatabase/serverless";
 
-type User = {
+export type User = {
   id: number;
   logbookId: number;
   logbookUsername: string;
