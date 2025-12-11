@@ -38,6 +38,8 @@ export function getMainPage(isLoggedIn: boolean, config: any): string {
     clientId: config.concept2.clientId,
     redirectUri: config.concept2.redirectUri,
     apiBaseUrl: config.concept2.apiBaseUrl,
+    discordClientId: config.discord.oauthClientId,
+    discordRedirectUri: config.discord.redirectUri,
   });
 }
 

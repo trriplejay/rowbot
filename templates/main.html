@@ -41,6 +41,13 @@
       .logout-button:hover {
         background-color: #c82333;
       }
+      .discord-button {
+        margin-top: 15px;
+        background-color: #5865f2;
+      }
+      .discord-button:hover {
+        background-color: #4752c4;
+      }
       .footer {
         position: fixed;
         bottom: 20px;
@@ -72,6 +79,9 @@
       </p>
       <button class="login-button {{buttonClass}}" onclick="{{buttonAction}}">
         {{buttonText}}
+      </button>
+      <button class="login-button discord-button" onclick="authorizeDiscord()">
+        Authorize RowBot via Discord
       </button>
     </div>
 
@@ -109,6 +119,14 @@
         }).then(() => {
           window.location.reload();
         });
+      }
+
+      function authorizeDiscord() {
+        const clientId = "{{discordClientId}}";
+        const redirectUri = encodeURIComponent("{{discordRedirectUri}}");
+        const scope = encodeURIComponent("identify");
+
+        window.location.href = `https://discord.com/api/oauth2/authorize?client_id=${clientId}&redirect_uri=${redirectUri}&response_type=code&scope=${scope}`;
       }
     </script>
   </body>

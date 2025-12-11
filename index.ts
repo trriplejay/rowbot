@@ -1,6 +1,7 @@
 import {
   AttachmentBuilder,
   EmbedBuilder,
+  Message,
   WebhookClient,
   type APIEmbedField,
 } from "discord.js";
@@ -12,6 +13,7 @@ import {
   type LogbookResult,
 } from "./logbook/client";
 import { generateWorkoutDisplay } from "./canvas/generate";
+import { GetDiscordClient } from "./discord/client";
 
 const config = {
   concept2: {
@@ -23,6 +25,11 @@ const config = {
   },
   discord: {
     webhookUrl: process.env.DISCORD_WEBHOOK_URL!,
+    oauthClientId: process.env.DISCORD_BOT_OAUTH_CLIENT_ID!,
+    oauthClientSecret: process.env.DISCORD_BOT_OAUTH_CLIENT_SECRET!,
+    botToken: process.env.DISCORD_BOT_TOKEN,
+    testGuildId: process.env.DISCORD_TEST_GUILD_ID,
+    redirectUri: "",
   },
   server: {
     externalUrl: process.env.APP_EXTERNAL_URL,
@@ -34,6 +41,7 @@ const config = {
   },
 };
 config.concept2.redirectUri = `${config.server.externalUrl}/callback`;
+config.discord.redirectUri = `${config.server.externalUrl}/discord/callback`;
 
 if (!config.concept2.apiBaseUrl) {
   throw new Error(`missing required configuration: CONCEPT2_API_BASE_URL `);
@@ -45,6 +53,12 @@ if (!config.concept2.apiBaseUrl) {
   throw new Error("missing required configuration: TURSO_DATABASE_URL");
 } else if (!config.db.token) {
   throw new Error("missing required configuration: TURSO_AUTH_TOKEN");
+} else if (!config.discord.oauthClientId) {
+  throw new Error("missing required configuration: DISCORD_BOT_OAUTH_CLIENT_ID");
+} else if (!config.discord.oauthClientSecret) {
+  throw new Error("missing required configuration: DISCORD_BOT_OAUTH_CLIENT_SECRET");
+} else if (!config.discord.botToken) {
+  throw new Error("missing required configuration: DISCORD_BOT_TOKEN");
 }
 
 function parseCookies(cookieHeader: string | null): Record<string, string> {
@@ -110,7 +124,7 @@ async function sendDiscordWebhook(
 
     await webhook.send({
       avatarURL: dbUser.profileImageUrl,
-      content: `:person_rowing_boat: **${dbUser.logbookUsername}** completed a rowing activity! :person_rowing_boat:`,
+      content: `:person_rowing_boat: **${dbUser.logbookUsername}** completed a rowing activity!`,
       files: [attachment],
     });
     console.log("Discord webhook sent successfully");
@@ -118,6 +132,8 @@ async function sendDiscordWebhook(
     console.error("Error sending Discord webhook:", error);
   }
 }
+
+const discordClient = await GetDiscordClient(config.discord.botToken, config.discord.oauthClientId);
 
 const server = Bun.serve({
   port: config.server.port,
@@ -134,8 +150,8 @@ const server = Bun.serve({
       });
     }
 
-    // OAuth callback
-    if (url.pathname === "/callback") {
+    // Concept2 Logbook OAuth callback
+    else if (url.pathname === "/callback") {
       const code = url.searchParams.get("code");
       const error = url.searchParams.get("error");
 
@@ -205,8 +221,34 @@ const server = Bun.serve({
       }
     }
 
+    else if (url.pathname === "/discord/callback") {
+      console.log("GOT A DISCORD OAUTH")
+      const code = url.searchParams.get("code");
+      const error = url.searchParams.get("error");
+
+      if (error) {
+        return new Response(getErrorPage(error), {
+          headers: { "Content-Type": "text/html" },
+        });
+      }
+
+      if (!code) {
+        return new Response(getErrorPage("No authorization code received"), {
+          headers: { "Content-Type": "text/html" },
+        });
+      }
+
+      const tokenResults = await discordClient.getTokenFromAuthCode(code, config.discord.oauthClientId, config.discord.oauthClientSecret, config.discord.redirectUri);
+      console.log(tokenResults);
+
+      const response = new Response(getSuccessPage(), {
+          headers: { "Content-Type": "text/html" },
+        });
+      return response;
+    }
+
     // Logout
-    if (url.pathname === "/logout" && req.method === "POST") {
+    else if (url.pathname === "/logout" && req.method === "POST") {
       const response = new Response("OK");
       response.headers.set(
         "Set-Cookie",
@@ -220,7 +262,7 @@ const server = Bun.serve({
     }
 
     // Webhook endpoint
-    if (url.pathname === "/webhook" && req.method === "POST") {
+    else if (url.pathname === "/webhook" && req.method === "POST") {
       try {
         const data = (await req.json()) as any;
         const hookType = data.type as string;
@@ -256,3 +298,51 @@ const server = Bun.serve({
 });
 
 console.log(`Server running at http://localhost:${server.port}`);
+
+const discordOauthWithRedirect = `https://discord.com/oauth2/authorize?client_id=1431016675070836799&response_type=code&redirect_uri=https%3A%2F%2F0eef6cbeb9ef.ngrok-free.app%2Fdiscord%2Fcallback&scope=identify`;
+
+
+if (discordClient.client) {
+  discordClient.client.on("messageCreate", async(message: Message) => {
+    if (message.author.bot) return;
+    // Handle Direct Messages
+    else if (message.channel.isDMBased()) {
+      console.log(`DM from ${message.author.tag}: ${message.content}`);
+      console.log(`the guild is: ${message.guild?.name}`);
+      // Reply to the DM
+
+      if(message.content.startsWith("register")) {
+        const mutualGuilds = discordClient.client.guilds.cache.filter(guild =>
+        guild.members.cache.has(message.author.id));
+        const mutualCount = Object.keys(mutualGuilds).length;
+        if ( mutualCount == 0) {
+          await message.reply(`Hello! thank you for your interest in RowBot. Unfortunately I have not been added to any servers that you are a member of. Please add me to one of your servers to get started.`);
+        } else if (mutualCount > 1) {
+          // check if they already sent the specific guild in the msg
+          const splitMessage = message.content.split(" ");
+          if (splitMessage.length > 1) {
+            const guildName = splitMessage[1];
+          }
+          await message.reply(`Hello! thank you for using RowBot. Please use the following link to connect your discord account with your concept2 logbook account.\n ${discordOauthWithRedirect}`)
+        }
+
+      }
+
+      await message.reply("message received");
+    }
+    else if (message.guild) {
+      console.log(`got a guild message: ${message.content}`)
+    }
+    else {
+      console.log("unsupported message received")
+    }
+  });
+  discordClient.client.on("interactionCreate", async (interaction) => {
+    if (!interaction.isChatInputCommand()) return;
+    if (interaction.commandName === 'register') {
+      console.log("got a user registration!")
+      console.log(interaction.guild?.name);
+      console.log(interaction.user.displayName);
+    }
+  })
+}
