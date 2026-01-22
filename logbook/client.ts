@@ -97,6 +97,8 @@ export function GetLogbookClient(baseUrl: string, token: string) {
       const formattedSplits: LogbookSplit[] = [];
       const formattedIntervals: LogbookInterval[] = [];
 
+      console.dir(data, {depth: null});
+
       if (rawWorkout?.splits) {
         for (const w of rawWorkout.splits) {
           if (!w) continue;

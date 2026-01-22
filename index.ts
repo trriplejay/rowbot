@@ -87,8 +87,6 @@ async function processWebhook(data: any) {
 
   const hookResult = await lbClient.getResultById(resultId);
 
-  console.log(hookResult)
-
   // Send to Discord
   await sendDiscordWebhook(dbUser, hookResult);
   console.log(`---- finished webhook processing at: ${Date.now()}`);
