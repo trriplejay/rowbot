@@ -87,6 +87,8 @@ async function processWebhook(data: any) {
 
   const hookResult = await lbClient.getResultById(resultId);
 
+  console.log(hookResult)
+
   // Send to Discord
   await sendDiscordWebhook(dbUser, hookResult);
   console.log(`---- finished webhook processing at: ${Date.now()}`);
@@ -110,7 +112,7 @@ async function sendDiscordWebhook(
 
     await webhook.send({
       avatarURL: dbUser.profileImageUrl,
-      content: `:person_rowing_boat: **${dbUser.logbookUsername}** completed a rowing activity! :person_rowing_boat:`,
+      content: `:person_rowing_boat: **${dbUser.logbookUsername}** completed a rowing activity!`,
       files: [attachment],
     });
     console.log("Discord webhook sent successfully");
