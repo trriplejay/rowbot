@@ -97,6 +97,12 @@ export function GetLogbookClient(baseUrl: string, token: string) {
       const formattedSplits: LogbookSplit[] = [];
       const formattedIntervals: LogbookInterval[] = [];
 
+      try {
+        console.log(JSON.stringify(data));
+      } catch (e) {
+        console.log("failed to stringify result");
+        console.log(e);
+      }
       console.dir(data, {depth: null});
 
       if (rawWorkout?.splits) {
