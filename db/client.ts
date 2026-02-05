@@ -18,6 +18,9 @@ export function GetDBClient(url: string, authToken: string) {
     getUserByLogbookId: async function (id: number): Promise<User> {
       const stmt = conn.prepare("SELECT * FROM users WHERE logbook_id = ?");
       const result = await stmt.get([id]);
+      if (!result) {
+        throw new Error(`user not found for logbookId: ${id}`)
+      }
 
       return {
         id: result.id,

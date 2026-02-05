@@ -66,6 +66,14 @@ async function processWebhook(data: any) {
   const time = formatTime(data.result.time) || "00:00:00";
   const resultId = data.result.id;
   const logbookUserId = data.result.user_id;
+
+  if (!resultId) {
+    throw new Error("failed to get result ID from webhook");
+  }
+  if (!logbookUserId) {
+    throw new Error("failed to get user ID from webhook");
+  }
+
   const dbClient = GetDBClient(config.db.url, config.db.token);
   const dbUser = await dbClient.getUserByLogbookId(logbookUserId);
 
