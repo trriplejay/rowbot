@@ -46,6 +46,15 @@ export function generateWorkoutDisplay(
   username: string,
   logbookResult: LogbookResult,
 ): Buffer {
+  const canvas = createWorkoutCanvas(username, logbookResult);
+  const buffer: Buffer = canvas.toBuffer("image/png");
+  return buffer;
+}
+
+export function createWorkoutCanvas(
+  username: string,
+  logbookResult: LogbookResult,
+): Canvas {
   // DaisyUI Forest theme color palette
   const colors: DaisyForestColors = {
     base100: "#1F2937", // Main dark background
@@ -84,17 +93,26 @@ export function generateWorkoutDisplay(
     logbookResult.workout.intervals.length > 0
   ) {
     for (const interval of logbookResult.workout.intervals) {
-      workoutRows.push({
+
+      const row: WorkoutRow  = {
         time: formatTime(interval.time),
         meter: formatDistance(interval.distance),
         pace: formatTime(calculatePace(interval.distance, interval.time)),
-        strokeRate: formatStrokeRate(interval.strokeRate),
-      });
+        strokeRate: formatStrokeRate(interval.strokeRate || 0),
+      }
+      if (interval.type === "rest") {
+        row.pace = ""
+        row.time = "r" + row.time
+        row.strokeRate = ""
+        row.meter = ""
+      }
+
+      workoutRows.push(row);
     }
   }
 
   // Calculate dynamic height based on number of rows
-  const baseHeight = 270; // Base height for headers, borders, footer (reduced by 30)
+  const baseHeight = 250; // Base height for headers, borders, footer
   const rowHeight = 28;
   const totalHeight = baseHeight + workoutRows.length * rowHeight;
 
@@ -134,15 +152,13 @@ export function generateWorkoutDisplay(
   ctx.strokeRect(40, 40, 470, totalHeight - 80);
   ctx.shadowBlur = 0;
 
-  // Terminal header with date
+  // Terminal header with workout type
   ctx.fillStyle = colors.accent;
   ctx.shadowColor = colors.accent;
   ctx.shadowBlur = 8;
   ctx.font = "bold 20px monospace";
-  const dateStr = logbookResult.date
-    ? new Date(logbookResult.date).toISOString().split("T")[0]
-    : new Date().toISOString().split("T")[0];
-  ctx.fillText(`>>> ${dateStr} <<<`, 60, 80);
+  const workoutTypeStr = logbookResult.workoutType || "Unknown";
+  ctx.fillText(`>>> ${workoutTypeStr} <<<`, 60, 80);
   ctx.shadowBlur = 0;
 
   // Add some retro UI elements
@@ -231,21 +247,7 @@ export function generateWorkoutDisplay(
     yPos += 28;
   });
 
-  // Add some UI decorations (adjust position based on dynamic height)
-  const decorationY = totalHeight - 80;
-  ctx.fillStyle = colors.primary;
-  ctx.fillRect(60, decorationY, 4, 15);
-  ctx.fillRect(70, decorationY + 5, 4, 10);
-  ctx.fillRect(80, decorationY + 10, 4, 8);
-
-  ctx.fillStyle = colors.secondary;
-  ctx.fillRect(470, decorationY, 4, 15);
-  ctx.fillRect(460, decorationY + 5, 4, 10);
-  ctx.fillRect(450, decorationY + 10, 4, 8);
-
-  // Return the image buffer
-  const buffer: Buffer = canvas.toBuffer("image/png");
-  return buffer;
+  return canvas;
 }
 
 // Export interface for module usage

@@ -4,6 +4,20 @@ export interface TokenData {
   expires_in: number;
 }
 
+const workoutTypes = [
+  'unknown',
+  'JustRow',
+  'FixedDistanceSplits',
+  'FixedTimeSplits',
+  'FixedCalorie',
+  'FixedTimeInterval',
+  'FixedDistanceInterval',
+  'FixedCalorieInterval',
+  'VariableInterval',
+  'VariableIntervalundefinedRest'
+] as const;
+type WorkoutType = typeof workoutTypes[number];
+
 type LogbookUser = {
   id: number;
   username: string;
@@ -14,15 +28,15 @@ type LogbookSplit = {
   time: number;
   distance: number;
   strokeRate: number;
-  avgHeartRate: number;
+  avgHeartRate?: number;
 };
 
 type LogbookInterval = {
-  type: "distance" | "time";
+  type: "distance" | "time" | "rest";
   distance: number;
   time: number;
-  strokeRate: number;
-  avgHeartRate: number;
+  strokeRate?: number;
+  avgHeartRate?: number;
 };
 
 type LogbookWorkout = {
@@ -36,6 +50,8 @@ export type LogbookResult = {
   time: number;
   date: Date;
   strokeRate: number;
+  heartRate?: number;
+  workoutType: WorkoutType;
   workout: LogbookWorkout;
 };
 
@@ -110,7 +126,7 @@ export function GetLogbookClient(baseUrl: string, token: string) {
           if (!w) continue;
           formattedSplits.push({
             time: w.time,
-            distance: w.distance,
+            distance: w.distance || 0,
             strokeRate: w.stroke_rate,
             avgHeartRate: w?.heart_rate?.average,
           } as LogbookSplit);
@@ -122,18 +138,27 @@ export function GetLogbookClient(baseUrl: string, token: string) {
           formattedIntervals.push({
             type: i.type,
             time: i.time,
-            distance: i.distance,
+            distance: i.distance || 0,
             strokeRate: i.stroke_rate,
             avgHeartRate: i?.heart_rate?.average,
           } as LogbookInterval);
+          if (i.rest_time) {
+            formattedIntervals.push({
+              type: "rest",
+              distance: i.rest_distance || 0,
+              time: i.rest_time as number,
+            } as LogbookInterval)
+          }
         }
       }
       const logbookResult: LogbookResult = {
         id: data.data.id,
         strokeRate: data.data.stroke_rate,
+        heartRate: data.data.heart_rate?.average,
         distance: data.data.distance,
         time: data.data.time,
         date: data.data.date,
+        workoutType: data.data.workout_type,
         workout: {
           intervals: formattedIntervals,
           splits: formattedSplits,

@@ -224,12 +224,13 @@ const server = Bun.serve({
       try {
         const data = (await req.json()) as any;
         const hookType = data.type as string;
+        console.log("got hook with type", hookType);
         // hook types can be result-added, result-updated, result-deleted
         if (hookType !== "result-added") {
-          return new Response("unsupported type", { status: 200 });
+          return new Response("success", { status: 200 });
         } else if (!data.result) {
           console.log("got a bad hook");
-          console.log(data);
+          console.dir(data);
           return new Response("cannot parse result from hook data", {
             status: 200,
           });

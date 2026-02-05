@@ -9,6 +9,7 @@ const testLogbookResultWithSplits: LogbookResult = {
   time: 21671, // 36:07.1 in seconds
   date: new Date("2025-09-17"),
   strokeRate: 19,
+  workoutType: "FixedDistanceSplits",
   workout: {
     intervals: null,
     splits: [
@@ -53,6 +54,7 @@ const testLogbookResultWithIntervals: LogbookResult = {
   time: 9005, // 15:00.5 in seconds
   date: new Date("2025-09-18"),
   strokeRate: 22,
+  workoutType: "FixedDistanceInterval",
   workout: {
     intervals: [
       {
@@ -61,6 +63,13 @@ const testLogbookResultWithIntervals: LogbookResult = {
         distance: 1000,
         strokeRate: 24,
         avgHeartRate: 155,
+      },
+      {
+        type: "rest",
+        time: 1500, // 02:30
+        distance: 0,
+        strokeRate: 0,
+        avgHeartRate: 0
       },
       {
         type: "distance",
@@ -88,6 +97,7 @@ const testLogbookResultSimple: LogbookResult = {
   time: 12000, // 20:00.0 in seconds
   date: new Date("2025-09-19"),
   strokeRate: 20,
+  workoutType: "FixedTimeSplits",
   workout: {
     intervals: null,
     splits: null,
@@ -101,6 +111,7 @@ const testLogbookResultManyIntervals: LogbookResult = {
   time: 24000, // 40:00.0 in seconds
   date: new Date("2025-09-20"),
   strokeRate: 24,
+  workoutType: "FixedDistanceInterval",
   workout: {
     intervals: [
       {
@@ -255,6 +266,7 @@ const testLogbookResultLongWorkout: LogbookResult = {
   time: 49260, // 1:22:06.0 in tenths of seconds (82:06.0)
   date: new Date("2025-09-21"),
   strokeRate: 22,
+  workoutType: "FixedDistanceInterval",
   workout: {
     intervals: null,
     splits: [
@@ -285,6 +297,62 @@ const testLogbookResultLongWorkout: LogbookResult = {
     ],
   },
 };
+
+const testLogbookResultVariableIntervalWorkout: LogbookResult = {
+  id: 112004675,
+  distance: 7500,
+  time: 18883, // 15:00.5 in seconds
+  date: new Date("2025-09-18"),
+  strokeRate: 22,
+  workoutType: "VariableInterval",
+  workout: {
+    intervals: [
+      {
+        type: "distance",
+        time: 7548,
+        distance: 3000,
+        strokeRate: 22,
+        avgHeartRate: 104,
+      },
+      {
+        type: "rest",
+        time: 3000,
+        distance: 25,
+        strokeRate: 0,
+        avgHeartRate: 0
+      },
+      {
+        type: "distance",
+        time: 6370,
+        distance: 2500,
+        strokeRate: 23,
+        avgHeartRate: 165,
+      },
+      {
+        type: "rest",
+        time: 3000,
+        distance: 65,
+        strokeRate: 0,
+        avgHeartRate: 0
+      },
+      {
+        type: "distance",
+        time: 4965,
+        distance: 2000,
+        strokeRate: 23,
+        avgHeartRate: 170,
+      },
+      {
+        type: "rest",
+        time: 3000,
+        distance: 65,
+        strokeRate: 0,
+        avgHeartRate: 0
+      },
+    ],
+    splits: null,
+  },
+}
 
 console.log("Generating workout displays...");
 
@@ -347,6 +415,19 @@ const outputPath5 = "./canvas/images/test-workout-long.png";
 writeFileSync(outputPath5, imageBuffer5);
 console.log(`Test long workout saved to ${outputPath5}`);
 console.log(`Image size: ${imageBuffer5.length} bytes`);
+console.log(
+  `Long workout: ${testLogbookResultLongWorkout.distance}m in 1:22:06.0 with ${testLogbookResultLongWorkout.workout.splits?.length || 0} splits`,
+);
+
+// Test 5: Generate long workout over 1 hour
+const imageBuffer6 = generateWorkoutDisplay(
+  "athlete6",
+  testLogbookResultVariableIntervalWorkout,
+);
+const outputPath6 = "./canvas/images/test-workout-variable-interval.png";
+writeFileSync(outputPath6, imageBuffer6);
+console.log(`Test long workout saved to ${outputPath6}`);
+console.log(`Image size: ${imageBuffer6.length} bytes`);
 console.log(
   `Long workout: ${testLogbookResultLongWorkout.distance}m in 1:22:06.0 with ${testLogbookResultLongWorkout.workout.splits?.length || 0} splits`,
 );
