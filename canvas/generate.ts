@@ -158,7 +158,9 @@ export function createWorkoutCanvas(
   ctx.shadowBlur = 8;
   ctx.font = "bold 20px monospace";
   const workoutTypeStr = logbookResult.workoutType || "Unknown";
-  ctx.fillText(`>>> ${workoutTypeStr} <<<`, 60, 80);
+  // add spaces to make the title look more readable
+  const spacedTypeStr = workoutTypeStr.split(/(?=[A-Z])/);
+  ctx.fillText(`>>> ${spacedTypeStr.join(" ")} <<<`, 60, 80);
   ctx.shadowBlur = 0;
 
   // Add some retro UI elements
