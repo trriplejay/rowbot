@@ -19,7 +19,7 @@ export function GetDBClient(url: string, authToken: string) {
       const stmt = conn.prepare("SELECT * FROM users WHERE logbook_id = ?");
       const result = await stmt.get([id]);
       if (!result) {
-        throw new Error(`user not found for logbookId: ${id}`)
+        throw new Error(`user not found for logbookId: ${id}`);
       }
 
       return {
@@ -36,10 +36,10 @@ export function GetDBClient(url: string, authToken: string) {
       logbookUsername: string,
       profileImageUrl: string,
       accessToken: string,
-      refreshToken: string,
+      refreshToken: string
     ): Promise<void> {
       console.log(
-        `creating user with id ${logbookId} and username ${logbookUsername}`,
+        `creating user with id ${logbookId} and username ${logbookUsername}`
       );
 
       const stmt = conn.prepare(`
@@ -63,7 +63,7 @@ export function GetDBClient(url: string, authToken: string) {
     updateUser: async function (
       logbookId: number,
       accessToken: string,
-      refreshToken: string,
+      refreshToken: string
     ): Promise<void> {
       const stmt = conn.prepare(`
         UPDATE users SET access_token = ?, refresh_token = ? WHERE logbook_id = ?

@@ -17,7 +17,7 @@ const mockWorkoutResults: Record<number, any> = {
     type: "result-added",
     result: {
       id: 1,
-      user_id: 1688
+      user_id: 1688,
     },
     data: {
       distance: 8000,
@@ -126,7 +126,8 @@ const mockWorkoutResults: Record<number, any> = {
             time: 2396,
             distance: 1000,
             type: "distance",
-          }, {
+          },
+          {
             type: "distance",
             distance: 1000,
             calories_total: 66,
@@ -141,7 +142,8 @@ const mockWorkoutResults: Record<number, any> = {
               recovery: 0,
             },
             time: 2389,
-          }, {
+          },
+          {
             distance: 1000,
             heart_rate: {
               ending: 118,
@@ -156,7 +158,8 @@ const mockWorkoutResults: Record<number, any> = {
             time: 2396,
             calories_total: 66,
             rest_time: 3000,
-          }, {
+          },
+          {
             rest_time: 3000,
             heart_rate: {
               min: 103,
@@ -171,7 +174,7 @@ const mockWorkoutResults: Record<number, any> = {
             time: 2362,
             distance: 1000,
             calories_total: 67,
-          }
+          },
         ],
         targets: {
           heart_rate_zone: 0,
@@ -202,10 +205,8 @@ const mockWorkoutResults: Record<number, any> = {
       date_utc: "2026-02-04 19:53:00",
       timezone: "America/Los_Angeles",
     },
-  }
+  },
 };
-
-
 
 // Mock token responses
 const mockTokens = {
@@ -240,9 +241,9 @@ const server = serve({
         console.log("found result id", id);
         // just using the default port for the local server
         const response = await fetch("http://localhost:3000/webhook", {
-          method: 'POST',
+          method: "POST",
           headers: {
-            'Content-Type': 'application/json'
+            "Content-Type": "application/json",
           },
           body: JSON.stringify(mockWorkoutResults[id] || {}),
         });
@@ -255,7 +256,6 @@ const server = serve({
 
       // Route: GET /api/users/me
       if (url.pathname === "/api/users/me" && method === "GET") {
-
         return new Response(JSON.stringify(mockUsers.me), {
           status: 200,
           headers: { "Content-Type": "application/json", ...corsHeaders },
@@ -352,8 +352,8 @@ console.log("   GET  /api/users/me");
 console.log("   GET  /api/users/me/results/:id");
 console.log("   POST /oauth/access_token");
 console.log(
-  "\n💡 To add custom workout results, modify the mockWorkoutResults object in server.ts",
+  "\n💡 To add custom workout results, modify the mockWorkoutResults object in server.ts"
 );
 console.log(
-  "\n🔗 Use this as your CONCEPT2_API_BASE_URL: http://localhost:3001",
+  "\n🔗 Use this as your CONCEPT2_API_BASE_URL: http://localhost:3001"
 );

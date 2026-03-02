@@ -54,9 +54,13 @@ if (!config.concept2.apiBaseUrl) {
 } else if (!config.db.token) {
   throw new Error("missing required configuration: TURSO_AUTH_TOKEN");
 } else if (!config.discord.oauthClientId) {
-  throw new Error("missing required configuration: DISCORD_BOT_OAUTH_CLIENT_ID");
+  throw new Error(
+    "missing required configuration: DISCORD_BOT_OAUTH_CLIENT_ID"
+  );
 } else if (!config.discord.oauthClientSecret) {
-  throw new Error("missing required configuration: DISCORD_BOT_OAUTH_CLIENT_SECRET");
+  throw new Error(
+    "missing required configuration: DISCORD_BOT_OAUTH_CLIENT_SECRET"
+  );
 } else if (!config.discord.botToken) {
   throw new Error("missing required configuration: DISCORD_BOT_TOKEN");
 }
@@ -95,16 +99,16 @@ async function processWebhook(data: any) {
   const tokenData = await lbClient.getTokenFromRefreshCode(
     dbUser.refreshToken,
     config.concept2.clientId,
-    config.concept2.clientSecret,
+    config.concept2.clientSecret
   );
   await dbClient.updateUser(
     dbUser.logbookId,
     tokenData.access_token,
-    tokenData.refresh_token,
+    tokenData.refresh_token
   );
   lbClient = GetLogbookClient(
     config.concept2.apiBaseUrl,
-    tokenData.access_token,
+    tokenData.access_token
   );
 
   const hookResult = await lbClient.getResultById(resultId);
@@ -116,7 +120,7 @@ async function processWebhook(data: any) {
 
 async function sendDiscordWebhook(
   dbUser: User,
-  data: LogbookResult,
+  data: LogbookResult
 ): Promise<void> {
   if (!config.discord.webhookUrl) {
     console.error("DISCORD_WEBHOOK_URL not configured");
@@ -141,7 +145,10 @@ async function sendDiscordWebhook(
   }
 }
 
-const discordClient = await GetDiscordClient(config.discord.botToken, config.discord.oauthClientId);
+const discordClient = await GetDiscordClient(
+  config.discord.botToken,
+  config.discord.oauthClientId
+);
 
 const server = Bun.serve({
   port: config.server.port,
@@ -181,7 +188,7 @@ const server = Bun.serve({
           code,
           config.concept2.clientId,
           config.concept2.clientSecret,
-          config.concept2.redirectUri,
+          config.concept2.redirectUri
         );
 
         // save user and token data to the turso db
@@ -193,7 +200,7 @@ const server = Bun.serve({
 
         lb = GetLogbookClient(
           config.concept2.apiBaseUrl,
-          tokenData.access_token,
+          tokenData.access_token
         );
         const currentUser = await lb.getCurrentUser();
 
@@ -202,7 +209,7 @@ const server = Bun.serve({
           currentUser.username,
           currentUser.profileImageUrl,
           tokenData.access_token,
-          tokenData.refresh_token,
+          tokenData.refresh_token
         );
 
         // Set secure HTTP-only cookies
@@ -210,11 +217,11 @@ const server = Bun.serve({
           "HttpOnly; Secure; SameSite=Strict; Max-Age=3600; Path=/";
         response.headers.set(
           "Set-Cookie",
-          `access_token=${encodeURIComponent(tokenData.access_token)}; ${cookieOptions}`,
+          `access_token=${encodeURIComponent(tokenData.access_token)}; ${cookieOptions}`
         );
         response.headers.append(
           "Set-Cookie",
-          `refresh_token=${encodeURIComponent(tokenData.refresh_token)}; ${cookieOptions}`,
+          `refresh_token=${encodeURIComponent(tokenData.refresh_token)}; ${cookieOptions}`
         );
 
         return response;
@@ -224,13 +231,11 @@ const server = Bun.serve({
           getErrorPage("Failed to exchange authorization code"),
           {
             headers: { "Content-Type": "text/html" },
-          },
+          }
         );
       }
-    }
-
-    else if (url.pathname === "/discord/callback") {
-      console.log("GOT A DISCORD OAUTH")
+    } else if (url.pathname === "/discord/callback") {
+      console.log("GOT A DISCORD OAUTH");
       const code = url.searchParams.get("code");
       const error = url.searchParams.get("error");
 
@@ -246,12 +251,17 @@ const server = Bun.serve({
         });
       }
 
-      const tokenResults = await discordClient.getTokenFromAuthCode(code, config.discord.oauthClientId, config.discord.oauthClientSecret, config.discord.redirectUri);
+      const tokenResults = await discordClient.getTokenFromAuthCode(
+        code,
+        config.discord.oauthClientId,
+        config.discord.oauthClientSecret,
+        config.discord.redirectUri
+      );
       console.log(tokenResults);
 
       const response = new Response(getSuccessPage(), {
-          headers: { "Content-Type": "text/html" },
-        });
+        headers: { "Content-Type": "text/html" },
+      });
       return response;
     }
 
@@ -260,11 +270,11 @@ const server = Bun.serve({
       const response = new Response("OK");
       response.headers.set(
         "Set-Cookie",
-        "access_token=; HttpOnly; Secure; SameSite=Strict; Max-Age=0; Path=/",
+        "access_token=; HttpOnly; Secure; SameSite=Strict; Max-Age=0; Path=/"
       );
       response.headers.append(
         "Set-Cookie",
-        "refresh_token=; HttpOnly; Secure; SameSite=Strict; Max-Age=0; Path=/",
+        "refresh_token=; HttpOnly; Secure; SameSite=Strict; Max-Age=0; Path=/"
       );
       return response;
     }
@@ -286,7 +296,7 @@ const server = Bun.serve({
           });
         }
         console.log(
-          `processing webhook with user_id:${data.result.user_id} result_id:${data.result.id}`,
+          `processing webhook with user_id:${data.result.user_id} result_id:${data.result.id}`
         );
 
         try {
@@ -310,9 +320,8 @@ console.log(`Server running at http://localhost:${server.port}`);
 
 const discordOauthWithRedirect = `https://discord.com/oauth2/authorize?client_id=1431016675070836799&response_type=code&redirect_uri=https%3A%2F%2F0eef6cbeb9ef.ngrok-free.app%2Fdiscord%2Fcallback&scope=identify`;
 
-
 if (discordClient.client) {
-  discordClient.client.on("messageCreate", async(message: Message) => {
+  discordClient.client.on("messageCreate", async (message: Message) => {
     if (message.author.bot) return;
     // Handle Direct Messages
     else if (message.channel.isDMBased()) {
@@ -320,38 +329,40 @@ if (discordClient.client) {
       console.log(`the guild is: ${message.guild?.name}`);
       // Reply to the DM
 
-      if(message.content.startsWith("register")) {
-        const mutualGuilds = discordClient.client.guilds.cache.filter(guild =>
-        guild.members.cache.has(message.author.id));
+      if (message.content.startsWith("register")) {
+        const mutualGuilds = discordClient.client.guilds.cache.filter((guild) =>
+          guild.members.cache.has(message.author.id)
+        );
         const mutualCount = Object.keys(mutualGuilds).length;
-        if ( mutualCount == 0) {
-          await message.reply(`Hello! thank you for your interest in RowBot. Unfortunately I have not been added to any servers that you are a member of. Please add me to one of your servers to get started.`);
+        if (mutualCount == 0) {
+          await message.reply(
+            `Hello! thank you for your interest in RowBot. Unfortunately I have not been added to any servers that you are a member of. Please add me to one of your servers to get started.`
+          );
         } else if (mutualCount > 1) {
           // check if they already sent the specific guild in the msg
           const splitMessage = message.content.split(" ");
           if (splitMessage.length > 1) {
             const guildName = splitMessage[1];
           }
-          await message.reply(`Hello! thank you for using RowBot. Please use the following link to connect your discord account with your concept2 logbook account.\n ${discordOauthWithRedirect}`)
+          await message.reply(
+            `Hello! thank you for using RowBot. Please use the following link to connect your discord account with your concept2 logbook account.\n ${discordOauthWithRedirect}`
+          );
         }
-
       }
 
       await message.reply("message received");
-    }
-    else if (message.guild) {
-      console.log(`got a guild message: ${message.content}`)
-    }
-    else {
-      console.log("unsupported message received")
+    } else if (message.guild) {
+      console.log(`got a guild message: ${message.content}`);
+    } else {
+      console.log("unsupported message received");
     }
   });
   discordClient.client.on("interactionCreate", async (interaction) => {
     if (!interaction.isChatInputCommand()) return;
-    if (interaction.commandName === 'register') {
-      console.log("got a user registration!")
+    if (interaction.commandName === "register") {
+      console.log("got a user registration!");
       console.log(interaction.guild?.name);
       console.log(interaction.user.displayName);
     }
-  })
+  });
 }

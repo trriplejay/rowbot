@@ -5,18 +5,18 @@ export interface TokenData {
 }
 
 const workoutTypes = [
-  'unknown',
-  'JustRow',
-  'FixedDistanceSplits',
-  'FixedTimeSplits',
-  'FixedCalorie',
-  'FixedTimeInterval',
-  'FixedDistanceInterval',
-  'FixedCalorieInterval',
-  'VariableInterval',
-  'VariableIntervalundefinedRest'
+  "unknown",
+  "JustRow",
+  "FixedDistanceSplits",
+  "FixedTimeSplits",
+  "FixedCalorie",
+  "FixedTimeInterval",
+  "FixedDistanceInterval",
+  "FixedCalorieInterval",
+  "VariableInterval",
+  "VariableIntervalundefinedRest",
 ] as const;
-type WorkoutType = typeof workoutTypes[number];
+type WorkoutType = (typeof workoutTypes)[number];
 
 type LogbookUser = {
   id: number;
@@ -119,7 +119,7 @@ export function GetLogbookClient(baseUrl: string, token: string) {
         console.log("failed to stringify result");
         console.log(e);
       }
-      console.dir(data, {depth: null});
+      console.dir(data, { depth: null });
 
       if (rawWorkout?.splits) {
         for (const w of rawWorkout.splits) {
@@ -147,7 +147,7 @@ export function GetLogbookClient(baseUrl: string, token: string) {
               type: "rest",
               distance: i.rest_distance || 0,
               time: i.rest_time as number,
-            } as LogbookInterval)
+            } as LogbookInterval);
           }
         }
       }
@@ -170,7 +170,7 @@ export function GetLogbookClient(baseUrl: string, token: string) {
       code: string,
       clientId: string,
       clientSecret: string,
-      redirectUri: string,
+      redirectUri: string
     ): Promise<TokenData> {
       const response = await fetch(`${baseUrl}/oauth/access_token`, {
         method: "POST",
@@ -194,7 +194,7 @@ export function GetLogbookClient(baseUrl: string, token: string) {
     getTokenFromRefreshCode: async function (
       refreshToken: string,
       clientId: string,
-      clientSecret: string,
+      clientSecret: string
     ): Promise<TokenData> {
       const response = await fetch(`${baseUrl}/oauth/access_token`, {
         method: "POST",

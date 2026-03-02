@@ -7,12 +7,12 @@ interface TemplateVariables {
 
 function renderTemplate(
   templateName: string,
-  variables: TemplateVariables = {},
+  variables: TemplateVariables = {}
 ): string {
   const templatePath = join(
     import.meta.dir,
     "templates",
-    `${templateName}.html`,
+    `${templateName}.html`
   );
   let template = readFileSync(templatePath, "utf-8");
 

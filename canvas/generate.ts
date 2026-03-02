@@ -44,7 +44,7 @@ function formatStrokeRate(rate: number): string {
 
 export function generateWorkoutDisplay(
   username: string,
-  logbookResult: LogbookResult,
+  logbookResult: LogbookResult
 ): Buffer {
   const canvas = createWorkoutCanvas(username, logbookResult);
   const buffer: Buffer = canvas.toBuffer("image/png");
@@ -53,7 +53,7 @@ export function generateWorkoutDisplay(
 
 export function createWorkoutCanvas(
   username: string,
-  logbookResult: LogbookResult,
+  logbookResult: LogbookResult
 ): Canvas {
   // DaisyUI Forest theme color palette
   const colors: DaisyForestColors = {
@@ -93,18 +93,17 @@ export function createWorkoutCanvas(
     logbookResult.workout.intervals.length > 0
   ) {
     for (const interval of logbookResult.workout.intervals) {
-
-      const row: WorkoutRow  = {
+      const row: WorkoutRow = {
         time: formatTime(interval.time),
         meter: formatDistance(interval.distance),
         pace: formatTime(calculatePace(interval.distance, interval.time)),
         strokeRate: formatStrokeRate(interval.strokeRate || 0),
-      }
+      };
       if (interval.type === "rest") {
-        row.pace = ""
-        row.time = "r" + row.time
-        row.strokeRate = ""
-        row.meter = ""
+        row.pace = "";
+        row.time = "r" + row.time;
+        row.strokeRate = "";
+        row.meter = "";
       }
 
       workoutRows.push(row);

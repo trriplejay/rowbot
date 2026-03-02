@@ -69,7 +69,7 @@ const testLogbookResultWithIntervals: LogbookResult = {
         time: 1500, // 02:30
         distance: 0,
         strokeRate: 0,
-        avgHeartRate: 0
+        avgHeartRate: 0,
       },
       {
         type: "distance",
@@ -319,7 +319,7 @@ const testLogbookResultVariableIntervalWorkout: LogbookResult = {
         time: 3000,
         distance: 25,
         strokeRate: 0,
-        avgHeartRate: 0
+        avgHeartRate: 0,
       },
       {
         type: "distance",
@@ -333,7 +333,7 @@ const testLogbookResultVariableIntervalWorkout: LogbookResult = {
         time: 3000,
         distance: 65,
         strokeRate: 0,
-        avgHeartRate: 0
+        avgHeartRate: 0,
       },
       {
         type: "distance",
@@ -347,45 +347,45 @@ const testLogbookResultVariableIntervalWorkout: LogbookResult = {
         time: 3000,
         distance: 65,
         strokeRate: 0,
-        avgHeartRate: 0
+        avgHeartRate: 0,
       },
     ],
     splits: null,
   },
-}
+};
 
 console.log("Generating workout displays...");
 
 // Test 1: Generate with splits
 const imageBuffer1 = generateWorkoutDisplay(
   "athlete1",
-  testLogbookResultWithSplits,
+  testLogbookResultWithSplits
 );
 const outputPath1 = "./canvas/images/test-workout-with-splits.png";
 writeFileSync(outputPath1, imageBuffer1);
 console.log(`Test workout with splits saved to ${outputPath1}`);
 console.log(`Image size: ${imageBuffer1.length} bytes`);
 console.log(
-  `Workout had ${testLogbookResultWithSplits.workout.splits?.length || 0} splits`,
+  `Workout had ${testLogbookResultWithSplits.workout.splits?.length || 0} splits`
 );
 
 // Test 2: Generate with intervals
 const imageBuffer2 = generateWorkoutDisplay(
   "athlete2",
-  testLogbookResultWithIntervals,
+  testLogbookResultWithIntervals
 );
 const outputPath2 = "./canvas/images/test-workout-with-intervals.png";
 writeFileSync(outputPath2, imageBuffer2);
 console.log(`Test workout with intervals saved to ${outputPath2}`);
 console.log(`Image size: ${imageBuffer2.length} bytes`);
 console.log(
-  `Workout had ${testLogbookResultWithIntervals.workout.intervals?.length || 0} intervals`,
+  `Workout had ${testLogbookResultWithIntervals.workout.intervals?.length || 0} intervals`
 );
 
 // Test 3: Generate simple workout
 const imageBuffer3 = generateWorkoutDisplay(
   "athlete3",
-  testLogbookResultSimple,
+  testLogbookResultSimple
 );
 const outputPath3 = "./canvas/images/test-workout-simple.png";
 writeFileSync(outputPath3, imageBuffer3);
@@ -396,40 +396,40 @@ console.log(`Simple workout with no splits or intervals`);
 // Test 4: Generate workout with many intervals
 const imageBuffer4 = generateWorkoutDisplay(
   "athlete4",
-  testLogbookResultManyIntervals,
+  testLogbookResultManyIntervals
 );
 const outputPath4 = "./canvas/images/test-workout-many-intervals.png";
 writeFileSync(outputPath4, imageBuffer4);
 console.log(`Test workout with many intervals saved to ${outputPath4}`);
 console.log(`Image size: ${imageBuffer4.length} bytes`);
 console.log(
-  `Workout had ${testLogbookResultManyIntervals.workout.intervals?.length || 0} intervals`,
+  `Workout had ${testLogbookResultManyIntervals.workout.intervals?.length || 0} intervals`
 );
 
 // Test 5: Generate long workout over 1 hour
 const imageBuffer5 = generateWorkoutDisplay(
   "athlete5",
-  testLogbookResultLongWorkout,
+  testLogbookResultLongWorkout
 );
 const outputPath5 = "./canvas/images/test-workout-long.png";
 writeFileSync(outputPath5, imageBuffer5);
 console.log(`Test long workout saved to ${outputPath5}`);
 console.log(`Image size: ${imageBuffer5.length} bytes`);
 console.log(
-  `Long workout: ${testLogbookResultLongWorkout.distance}m in 1:22:06.0 with ${testLogbookResultLongWorkout.workout.splits?.length || 0} splits`,
+  `Long workout: ${testLogbookResultLongWorkout.distance}m in 1:22:06.0 with ${testLogbookResultLongWorkout.workout.splits?.length || 0} splits`
 );
 
 // Test 5: Generate long workout over 1 hour
 const imageBuffer6 = generateWorkoutDisplay(
   "athlete6",
-  testLogbookResultVariableIntervalWorkout,
+  testLogbookResultVariableIntervalWorkout
 );
 const outputPath6 = "./canvas/images/test-workout-variable-interval.png";
 writeFileSync(outputPath6, imageBuffer6);
 console.log(`Test long workout saved to ${outputPath6}`);
 console.log(`Image size: ${imageBuffer6.length} bytes`);
 console.log(
-  `Long workout: ${testLogbookResultLongWorkout.distance}m in 1:22:06.0 with ${testLogbookResultLongWorkout.workout.splits?.length || 0} splits`,
+  `Long workout: ${testLogbookResultLongWorkout.distance}m in 1:22:06.0 with ${testLogbookResultLongWorkout.workout.splits?.length || 0} splits`
 );
 
 console.log("\nAll test images generated successfully!");
