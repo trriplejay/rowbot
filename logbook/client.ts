@@ -28,6 +28,8 @@ type LogbookSplit = {
   time: number;
   distance: number;
   strokeRate: number;
+  wattMinutes: number;
+  calories: number;
   avgHeartRate?: number;
 };
 
@@ -35,6 +37,8 @@ type LogbookInterval = {
   type: "distance" | "time" | "rest";
   distance: number;
   time: number;
+  wattMinutes?: number;
+  calories?: number;
   strokeRate?: number;
   avgHeartRate?: number;
 };
@@ -51,6 +55,8 @@ export type LogbookResult = {
   date: Date;
   strokeRate: number;
   heartRate?: number;
+  wattMinutes: number;
+  calories: number;
   workoutType: WorkoutType;
   workout: LogbookWorkout;
 };
@@ -128,7 +134,9 @@ export function GetLogbookClient(baseUrl: string, token: string) {
             time: w.time,
             distance: w.distance || 0,
             strokeRate: w.stroke_rate,
-            avgHeartRate: w?.heart_rate?.average,
+            avgHeartRate: w.heart_rate?.average,
+            wattMinutes: w.wattminutes_total,
+            calories: w.calories_total,
           } as LogbookSplit);
         }
       }
@@ -141,6 +149,8 @@ export function GetLogbookClient(baseUrl: string, token: string) {
             distance: i.distance || 0,
             strokeRate: i.stroke_rate,
             avgHeartRate: i?.heart_rate?.average,
+            wattMinutes: i.wattminutes_total,
+            calories: i.calories_total,
           } as LogbookInterval);
           if (i.rest_time) {
             formattedIntervals.push({
@@ -155,6 +165,8 @@ export function GetLogbookClient(baseUrl: string, token: string) {
         id: data.data.id,
         strokeRate: data.data.stroke_rate,
         heartRate: data.data.heart_rate?.average,
+        wattMinutes: data.data.wattminutes_total,
+        calories: data.data.calories_total,
         distance: data.data.distance,
         time: data.data.time,
         date: data.data.date,

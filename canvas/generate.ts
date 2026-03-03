@@ -11,6 +11,9 @@ interface WorkoutRow {
   meter: string;
   pace: string;
   strokeRate: string;
+  heartRate: string;
+  calories: string;
+  wattMinutes: string;
 }
 
 interface DaisyForestColors {
@@ -40,6 +43,18 @@ function formatDistance(meters: number): string {
 // Helper function to format stroke rate
 function formatStrokeRate(rate: number): string {
   return rate ? rate.toString() : "0";
+}
+
+function formatHeartRate(rate?: number): string {
+  return rate ? rate.toString(): "";
+}
+
+function formatCalories(calories?: number): string {
+  return calories ? calories.toString() : "";
+}
+
+function formatWattMinutes(wattMinutes?: number): string {
+  return wattMinutes ? wattMinutes.toString() : "";
 }
 
 export function generateWorkoutDisplay(
@@ -76,6 +91,9 @@ export function createWorkoutCanvas(
     meter: formatDistance(logbookResult.distance),
     pace: formatTime(calculatePace(logbookResult.distance, logbookResult.time)),
     strokeRate: formatStrokeRate(logbookResult.strokeRate),
+    heartRate: formatHeartRate(logbookResult.heartRate),
+    calories: formatCalories(logbookResult.calories),
+    wattMinutes: formatWattMinutes(logbookResult.wattMinutes),
   });
 
   // Add splits or intervals if available
@@ -86,6 +104,9 @@ export function createWorkoutCanvas(
         meter: formatDistance(split.distance),
         pace: formatTime(calculatePace(split.distance, split.time)),
         strokeRate: formatStrokeRate(split.strokeRate),
+        heartRate: formatHeartRate(split.avgHeartRate),
+        calories: formatCalories(split.calories),
+        wattMinutes: formatWattMinutes(split.wattMinutes),
       });
     }
   } else if (
@@ -99,12 +120,17 @@ export function createWorkoutCanvas(
         meter: formatDistance(interval.distance),
         pace: formatTime(calculatePace(interval.distance, interval.time)),
         strokeRate: formatStrokeRate(interval.strokeRate || 0),
+        heartRate: formatHeartRate(interval.avgHeartRate),
+        calories: formatCalories(interval.calories),
+        wattMinutes: formatWattMinutes(interval.wattMinutes),
       }
       if (interval.type === "rest") {
         row.pace = ""
         row.time = "r" + row.time
         row.strokeRate = ""
         row.meter = ""
+        row.calories = ""
+        row.wattMinutes = ""
       }
 
       workoutRows.push(row);
@@ -113,16 +139,17 @@ export function createWorkoutCanvas(
 
   // Calculate dynamic height based on number of rows
   const baseHeight = 250; // Base height for headers, borders, footer
+  const baseWidth = 580;
   const rowHeight = 28;
   const totalHeight = baseHeight + workoutRows.length * rowHeight;
 
   // Create canvas with dynamic height
-  const canvas: Canvas = createCanvas(550, totalHeight);
+  const canvas: Canvas = createCanvas(baseWidth, totalHeight);
   const ctx: CanvasRenderingContext2D = canvas.getContext("2d");
 
   // Fill background with base color
   ctx.fillStyle = colors.base300;
-  ctx.fillRect(0, 0, 550, totalHeight);
+  ctx.fillRect(0, 0, baseWidth, totalHeight);
 
   // Add some retro scanlines effect
   ctx.strokeStyle = colors.neutral;
@@ -131,7 +158,7 @@ export function createWorkoutCanvas(
     ctx.globalAlpha = 0.3;
     ctx.beginPath();
     ctx.moveTo(0, i);
-    ctx.lineTo(550, i);
+    ctx.lineTo(baseWidth, i);
     ctx.stroke();
   }
   ctx.globalAlpha = 1;
@@ -141,7 +168,7 @@ export function createWorkoutCanvas(
   ctx.lineWidth = 4;
   ctx.shadowColor = colors.primary;
   ctx.shadowBlur = 15;
-  ctx.strokeRect(20, 20, 510, totalHeight - 40);
+  ctx.strokeRect(20, 20, baseWidth - 40, totalHeight - 40);
   ctx.shadowBlur = 0;
 
   // Inner border
@@ -149,7 +176,7 @@ export function createWorkoutCanvas(
   ctx.lineWidth = 2;
   ctx.shadowColor = colors.secondary;
   ctx.shadowBlur = 10;
-  ctx.strokeRect(40, 40, 470, totalHeight - 80);
+  ctx.strokeRect(40, 40, baseWidth - 80, totalHeight - 80);
   ctx.shadowBlur = 0;
 
   // Terminal header with workout type
@@ -171,14 +198,14 @@ export function createWorkoutCanvas(
 
   // Table headers section
   ctx.fillStyle = colors.base200;
-  ctx.fillRect(60, 120, 430, 40);
+  ctx.fillRect(60, 120, baseWidth - 120, 40);
 
   // Border for header
   ctx.strokeStyle = colors.accent;
   ctx.lineWidth = 2;
   ctx.shadowColor = colors.accent;
   ctx.shadowBlur = 8;
-  ctx.strokeRect(60, 120, 430, 40);
+  ctx.strokeRect(60, 120, baseWidth - 120, 40);
   ctx.shadowBlur = 0;
 
   // Table headers with font
@@ -189,10 +216,13 @@ export function createWorkoutCanvas(
 
   // Right-align all headers to match the data columns
   ctx.textAlign = "right";
-  ctx.fillText("TIME", 160, 145);
-  ctx.fillText("METERS", 260, 145);
-  ctx.fillText("PACE/500M", 400, 145);
-  ctx.fillText("S/MIN", 480, 145);
+  ctx.fillText("Time", 145, 145);
+  ctx.fillText("Meters", 225, 145);
+  ctx.fillText("Pace", 310, 145);
+  ctx.fillText("Watts", 380, 145);
+  ctx.fillText("Cal", 430, 145);
+  ctx.fillText("S/M", 470, 145);
+  ctx.fillText("HR", 510, 145);
   ctx.shadowBlur = 0;
 
   // Use the prepared workout data
@@ -200,12 +230,12 @@ export function createWorkoutCanvas(
 
   // First row highlighting
   ctx.fillStyle = colors.base200;
-  ctx.fillRect(60, 170, 430, 30);
+  ctx.fillRect(60, 170, baseWidth - 120, 30);
   ctx.strokeStyle = colors.secondary;
   ctx.lineWidth = 2;
   ctx.shadowColor = colors.secondary;
   ctx.shadowBlur = 6;
-  ctx.strokeRect(60, 170, 430, 30);
+  ctx.strokeRect(60, 170, baseWidth - 120, 30);
   ctx.shadowBlur = 0;
 
   // Draw all table rows with DaisyUI styling
@@ -230,10 +260,13 @@ export function createWorkoutCanvas(
 
     // Right-align all columns for better alignment of numeric data
     ctx.textAlign = "right";
-    ctx.fillText(row.time, 160, yPos);
-    ctx.fillText(row.meter, 260, yPos);
-    ctx.fillText(row.pace, 400, yPos);
-    ctx.fillText(row.strokeRate, 480, yPos);
+    ctx.fillText(row.time, 145, yPos);
+    ctx.fillText(row.meter, 225, yPos);
+    ctx.fillText(row.pace, 310, yPos);
+    ctx.fillText(row.wattMinutes, 380, yPos);
+    ctx.fillText(row.calories, 430, yPos);
+    ctx.fillText(row.strokeRate, 470, yPos);
+    ctx.fillText(row.heartRate, 510, yPos);
 
     ctx.shadowBlur = 0;
 
@@ -241,7 +274,7 @@ export function createWorkoutCanvas(
     if (index < rowData.length - 1) {
       ctx.fillStyle = colors.neutral;
       // Create pixelated line effect
-      for (let x = 60; x < 490; x += 8) {
+      for (let x = 60; x < baseWidth - 60; x += 8) {
         ctx.fillRect(x, yPos + 12, 4, 1);
       }
     }
