@@ -1,6 +1,7 @@
 import { createCanvas, Canvas, CanvasRenderingContext2D } from "canvas";
 import {
   calculatePace,
+  calculateWatts,
   formatTime,
   type LogbookResult,
 } from "../logbook/client";
@@ -26,14 +27,6 @@ interface DaisyForestColors {
   accent: string; // Accent cyan
   neutral: string; // Neutral gray
 }
-
-// // Helper function to format pace (time per 500m)
-// function formatPace(timeInSeconds: number, distanceInMeters: number): string {
-//   const paceSeconds = (timeInSeconds / distanceInMeters) * 500;
-//   const minutes = Math.floor(paceSeconds / 60);
-//   const seconds = paceSeconds % 60;
-//   return `${minutes}:${seconds.toFixed(1).padStart(4, '0')}`;
-// }
 
 // Helper function to format distance
 function formatDistance(meters: number): string {
@@ -86,27 +79,29 @@ export function createWorkoutCanvas(
   const workoutRows: WorkoutRow[] = [];
 
   // Add main workout row
+  const avgPace = calculatePace(logbookResult.distance, logbookResult.time);
   workoutRows.push({
     time: formatTime(logbookResult.time),
     meter: formatDistance(logbookResult.distance),
-    pace: formatTime(calculatePace(logbookResult.distance, logbookResult.time)),
+    pace: formatTime(avgPace),
     strokeRate: formatStrokeRate(logbookResult.strokeRate),
     heartRate: formatHeartRate(logbookResult.heartRate),
     calories: formatCalories(logbookResult.calories),
-    wattMinutes: formatWattMinutes(logbookResult.wattMinutes),
+    wattMinutes: formatWattMinutes(calculateWatts(avgPace)),
   });
 
   // Add splits or intervals if available
   if (logbookResult.workout.splits && logbookResult.workout.splits.length > 0) {
     for (const split of logbookResult.workout.splits) {
+      const pace = calculatePace(split.distance, split.time)
       workoutRows.push({
         time: formatTime(split.time),
         meter: formatDistance(split.distance),
-        pace: formatTime(calculatePace(split.distance, split.time)),
+        pace: formatTime(pace),
         strokeRate: formatStrokeRate(split.strokeRate),
         heartRate: formatHeartRate(split.avgHeartRate),
         calories: formatCalories(split.calories),
-        wattMinutes: formatWattMinutes(split.wattMinutes),
+        wattMinutes: formatWattMinutes(calculateWatts(pace)),
       });
     }
   } else if (
@@ -114,15 +109,15 @@ export function createWorkoutCanvas(
     logbookResult.workout.intervals.length > 0
   ) {
     for (const interval of logbookResult.workout.intervals) {
-
+      const pace = calculatePace(interval.distance, interval.time)
       const row: WorkoutRow  = {
         time: formatTime(interval.time),
         meter: formatDistance(interval.distance),
-        pace: formatTime(calculatePace(interval.distance, interval.time)),
+        pace: formatTime(pace),
         strokeRate: formatStrokeRate(interval.strokeRate || 0),
         heartRate: formatHeartRate(interval.avgHeartRate),
         calories: formatCalories(interval.calories),
-        wattMinutes: formatWattMinutes(interval.wattMinutes),
+        wattMinutes: formatWattMinutes(calculateWatts(pace)),
       }
       if (interval.type === "rest") {
         row.pace = ""

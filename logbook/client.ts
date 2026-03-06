@@ -28,7 +28,6 @@ type LogbookSplit = {
   time: number;
   distance: number;
   strokeRate: number;
-  wattMinutes: number;
   calories: number;
   avgHeartRate?: number;
 };
@@ -37,7 +36,6 @@ type LogbookInterval = {
   type: "distance" | "time" | "rest";
   distance: number;
   time: number;
-  wattMinutes?: number;
   calories?: number;
   strokeRate?: number;
   avgHeartRate?: number;
@@ -55,7 +53,6 @@ export type LogbookResult = {
   date: Date;
   strokeRate: number;
   heartRate?: number;
-  wattMinutes: number;
   calories: number;
   workoutType: WorkoutType;
   workout: LogbookWorkout;
@@ -84,6 +81,15 @@ export function calculatePace(distance: number, time: number): number {
   // time / distance gives x tenths per meter
   // times 500 gives x tenths per 500 meters
   return Math.round((time / distance) * 500);
+}
+
+export function calculateWatts(pace: number): number {
+  // note: pace is passed in as tenths of a second per 500m
+  // calculation is based on description here:
+  // https://www.concept2.com/training/watts-calculator
+  const  calculatedPace = pace / 10.0 / 500.0;
+  const watts = 2.80/(calculatedPace * calculatedPace * calculatedPace);
+  return Math.round(watts);
 }
 
 export function GetLogbookClient(baseUrl: string, token: string) {
@@ -135,7 +141,6 @@ export function GetLogbookClient(baseUrl: string, token: string) {
             distance: w.distance || 0,
             strokeRate: w.stroke_rate,
             avgHeartRate: w.heart_rate?.average,
-            wattMinutes: w.wattminutes_total,
             calories: w.calories_total,
           } as LogbookSplit);
         }
@@ -148,8 +153,7 @@ export function GetLogbookClient(baseUrl: string, token: string) {
             time: i.time,
             distance: i.distance || 0,
             strokeRate: i.stroke_rate,
-            avgHeartRate: i?.heart_rate?.average,
-            wattMinutes: i.wattminutes_total,
+            avgHeartRate: i.heart_rate?.average,
             calories: i.calories_total,
           } as LogbookInterval);
           if (i.rest_time) {
@@ -165,7 +169,6 @@ export function GetLogbookClient(baseUrl: string, token: string) {
         id: data.data.id,
         strokeRate: data.data.stroke_rate,
         heartRate: data.data.heart_rate?.average,
-        wattMinutes: data.data.wattminutes_total,
         calories: data.data.calories_total,
         distance: data.data.distance,
         time: data.data.time,

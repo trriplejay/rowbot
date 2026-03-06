@@ -9,7 +9,6 @@ const testLogbookResultWithSplits: LogbookResult = {
   time: 21671, // 36:07.1 in seconds
   date: new Date("2025-09-17"),
   strokeRate: 19,
-  wattMinutes: 56,
   calories: 452,
   workoutType: "FixedDistanceSplits",
   workout: {
@@ -19,7 +18,6 @@ const testLogbookResultWithSplits: LogbookResult = {
         time: 4357, // 07:15.7
         distance: 1600,
         strokeRate: 18,
-        wattMinutes: 57,
         calories: 90,
         avgHeartRate: 104,
       },
@@ -27,7 +25,6 @@ const testLogbookResultWithSplits: LogbookResult = {
         time: 4334, // 07:13.4
         distance: 3200,
         strokeRate: 19,
-        wattMinutes: 56,
         calories: 88,
         avgHeartRate: 149,
       },
@@ -35,7 +32,6 @@ const testLogbookResultWithSplits: LogbookResult = {
         time: 4313, // 07:11.3
         distance: 4800,
         strokeRate: 19,
-        wattMinutes: 55,
         calories: 87,
         avgHeartRate: 150,
       },
@@ -43,7 +39,6 @@ const testLogbookResultWithSplits: LogbookResult = {
         time: 4354, // 07:15.4
         distance: 6400,
         strokeRate: 19,
-        wattMinutes: 56,
         calories: 89,
         avgHeartRate: 150,
       },
@@ -51,7 +46,6 @@ const testLogbookResultWithSplits: LogbookResult = {
         time: 4312, // 07:11.2
         distance: 8000,
         strokeRate: 20,
-        wattMinutes: 54,
         calories: 98,
         avgHeartRate: 163,
       },
@@ -66,7 +60,6 @@ const testLogbookResultWithIntervals: LogbookResult = {
   time: 9005, // 15:00.5 in seconds
   date: new Date("2025-09-18"),
   strokeRate: 22,
-  wattMinutes: 63,
   calories: 312,
   workoutType: "FixedDistanceInterval",
   workout: {
@@ -76,7 +69,6 @@ const testLogbookResultWithIntervals: LogbookResult = {
         time: 3002, // 05:00.2
         distance: 1000,
         strokeRate: 24,
-        wattMinutes: 64,
         calories: 106,
         avgHeartRate: 155,
       },
@@ -85,7 +77,6 @@ const testLogbookResultWithIntervals: LogbookResult = {
         time: 1500, // 02:30
         distance: 0,
         strokeRate: 0,
-        wattMinutes: 0,
         calories: 0,
         avgHeartRate: 0
       },
@@ -94,7 +85,6 @@ const testLogbookResultWithIntervals: LogbookResult = {
         time: 2988, // 04:58.8
         distance: 1000,
         strokeRate: 23,
-        wattMinutes: 62,
         calories: 102,
         avgHeartRate: 165,
       },
@@ -103,7 +93,6 @@ const testLogbookResultWithIntervals: LogbookResult = {
         time: 3015, // 05:01.5
         distance: 1000,
         strokeRate: 22,
-        wattMinutes: 63,
         calories: 104,
         avgHeartRate: 170,
       },
@@ -119,7 +108,6 @@ const testLogbookResultSimple: LogbookResult = {
   time: 12000, // 20:00.0 in seconds
   date: new Date("2025-09-19"),
   strokeRate: 20,
-  wattMinutes: 58,
   calories: 360,
   workoutType: "FixedTimeSplits",
   workout: {
@@ -135,7 +123,6 @@ const testLogbookResultManyIntervals: LogbookResult = {
   time: 24000, // 40:00.0 in seconds
   date: new Date("2025-09-20"),
   strokeRate: 24,
-  wattMinutes: 31,
   calories: 990,
   workoutType: "FixedDistanceInterval",
   workout: {
@@ -145,7 +132,6 @@ const testLogbookResultManyIntervals: LogbookResult = {
         time: 1205,
         distance: 500,
         strokeRate: 26,
-        wattMinutes: 31,
         calories: 48,
         avgHeartRate: 140,
       },
@@ -154,7 +140,6 @@ const testLogbookResultManyIntervals: LogbookResult = {
         time: 1192,
         distance: 500,
         strokeRate: 25,
-        wattMinutes: 30,
         calories: 47,
         avgHeartRate: 145,
       },
@@ -163,7 +148,6 @@ const testLogbookResultManyIntervals: LogbookResult = {
         time: 1189,
         distance: 500,
         strokeRate: 26,
-        wattMinutes: 32,
         calories: 49,
         avgHeartRate: 155,
       },
@@ -172,7 +156,6 @@ const testLogbookResultManyIntervals: LogbookResult = {
         time: 1218,
         distance: 500,
         strokeRate: 24,
-        wattMinutes: 30,
         calories: 46,
         avgHeartRate: 150,
       },
@@ -181,7 +164,6 @@ const testLogbookResultManyIntervals: LogbookResult = {
         time: 1201,
         distance: 500,
         strokeRate: 25,
-        wattMinutes: 31,
         calories: 48,
         avgHeartRate: 158,
       },
@@ -302,7 +284,6 @@ const testLogbookResultLongWorkout: LogbookResult = {
   time: 49260, // 1:22:06.0 in tenths of seconds (82:06.0)
   date: new Date("2025-09-21"),
   strokeRate: 22,
-  wattMinutes: 303,
   calories: 1895,
   workoutType: "FixedDistanceInterval",
   workout: {
@@ -312,7 +293,6 @@ const testLogbookResultLongWorkout: LogbookResult = {
         time: 12150, // 20:15.0
         distance: 5000,
         strokeRate: 23,
-        wattMinutes: 298,
         calories: 468,
         avgHeartRate: 135,
       },
@@ -320,7 +300,6 @@ const testLogbookResultLongWorkout: LogbookResult = {
         time: 12300, // 20:30.0
         distance: 10000,
         strokeRate: 22,
-        wattMinutes: 301,
         calories: 471,
         avgHeartRate: 145,
       },
@@ -328,7 +307,6 @@ const testLogbookResultLongWorkout: LogbookResult = {
         time: 12450, // 20:45.0
         distance: 15000,
         strokeRate: 21,
-        wattMinutes: 304,
         calories: 476,
         avgHeartRate: 155,
       },
@@ -336,7 +314,6 @@ const testLogbookResultLongWorkout: LogbookResult = {
         time: 12360, // 20:36.0
         distance: 21097,
         strokeRate: 22,
-        wattMinutes: 307,
         calories: 480,
         avgHeartRate: 165,
       },
@@ -351,7 +328,6 @@ const testLogbookResultVariableIntervalWorkout: LogbookResult = {
   date: new Date("2025-09-18"),
   strokeRate: 22,
   heartRate: 130,
-  wattMinutes: 134,
   calories: 640,
   workoutType: "VariableInterval",
   workout: {
@@ -361,7 +337,6 @@ const testLogbookResultVariableIntervalWorkout: LogbookResult = {
         time: 7548,
         distance: 3000,
         strokeRate: 22,
-        wattMinutes: 162,
         calories: 255,
         avgHeartRate: 104,
       },
@@ -370,7 +345,6 @@ const testLogbookResultVariableIntervalWorkout: LogbookResult = {
         time: 3000,
         distance: 25,
         strokeRate: 0,
-        wattMinutes: 0,
         calories: 0,
         avgHeartRate: 0
       },
@@ -379,7 +353,6 @@ const testLogbookResultVariableIntervalWorkout: LogbookResult = {
         time: 6370,
         distance: 2500,
         strokeRate: 23,
-        wattMinutes: 141,
         calories: 224,
         avgHeartRate: 165,
       },
@@ -388,7 +361,6 @@ const testLogbookResultVariableIntervalWorkout: LogbookResult = {
         time: 3000,
         distance: 65,
         strokeRate: 0,
-        wattMinutes: 0,
         calories: 0,
         avgHeartRate: 0
       },
@@ -397,7 +369,6 @@ const testLogbookResultVariableIntervalWorkout: LogbookResult = {
         time: 4965,
         distance: 2000,
         strokeRate: 23,
-        wattMinutes: 100,
         calories: 161,
         avgHeartRate: 170,
       },
@@ -406,7 +377,6 @@ const testLogbookResultVariableIntervalWorkout: LogbookResult = {
         time: 3000,
         distance: 65,
         strokeRate: 0,
-        wattMinutes: 0,
         calories: 0,
         avgHeartRate: 0
       },

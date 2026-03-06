@@ -282,19 +282,31 @@ const server = serve({
             data: {
               id: id,
               distance: 5000,
-              time: 12000, // 20:00.0 in tenths
+              time: 12000,
               date: new Date().toISOString(),
               stroke_rate: 20,
               heart_rate: { average: 155 },
+              calories_total: 600,
+              wattminutes_total: 123,
               workout_type: "JustRow",
               workout: {
                 intervals: null,
                 splits: [
                   {
-                    time: 12000, // 20:00.0 in tenths
-                    distance: 5000,
+                    time: 6000,
+                    distance: 2500,
                     stroke_rate: 20,
-                    heart_rate: { average: 155 },
+                    heart_rate: { average: 130 },
+                    calories_total: 600,
+                    wattminutes_total: 120
+                  },
+                  {
+                    time: 6000,
+                    distance: 2500,
+                    stroke_rate: 22,
+                    heart_rate: { average: 145 },
+                    calories_total: 600,
+                    wattminutes_total: 126
                   },
                 ],
               },
